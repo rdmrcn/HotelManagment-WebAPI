@@ -33,15 +33,19 @@ export default async function RoomPage({ params }: RoomPageProps) {
 
   return (
     <article>
-      <div className="relative h-[52vh] min-h-[320px] bg-muted">
-        <Image
-          src={room.image}
-          alt={room.imageAlt}
-          fill
-          priority
-          className="object-cover"
-          sizes="100vw"
-        />
+      <div className="grid gap-2 md:grid-cols-2">
+        {room.images.map((photo, index) => (
+          <div key={photo.src} className="relative min-h-[42vh] bg-muted md:min-h-[56vh]">
+            <Image
+              src={photo.src}
+              alt={photo.alt}
+              fill
+              priority={index === 0}
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 50vw"
+            />
+          </div>
+        ))}
       </div>
       <div className="mx-auto grid w-full max-w-6xl gap-12 px-5 py-12 lg:grid-cols-[minmax(0,1fr)_340px] lg:py-16">
         <div>

@@ -1,5 +1,10 @@
 import { withBasePath } from "@/lib/asset"
 
+export type RoomPhoto = {
+  src: string
+  alt: string
+}
+
 export type Room = {
   slug: string
   name: string
@@ -10,8 +15,18 @@ export type Room = {
   summary: string
   description: string
   amenities: string[]
-  image: string
-  imageAlt: string
+  images: RoomPhoto[]
+}
+
+function photos(slug: string, alts: [string, string]): RoomPhoto[] {
+  return [
+    { src: withBasePath(`/images/room-${slug}-1.jpg`), alt: alts[0] },
+    { src: withBasePath(`/images/room-${slug}-2.jpg`), alt: alts[1] },
+  ]
+}
+
+export function roomCover(room: Room) {
+  return room.images[0]
 }
 
 export const rooms: Room[] = [
@@ -34,9 +49,10 @@ export const rooms: Room[] = [
       "Linen robes",
       "Wireless internet",
     ],
-    image: withBasePath("/images/room-standard.jpg"),
-    imageAlt:
-      "Compact bedroom with cream linen, walnut panelling, a brass lamp, and a window onto a walled garden.",
+    images: photos("standard", [
+      "Compact garden bedroom with a double bed in cream linen, limewashed plaster, a brass lamp, and a sash window onto a fig tree and stone path.",
+      "The same garden room from the writing desk, looking toward the sash window, boxwood, and a corner of the double bed.",
+    ]),
   },
   {
     slug: "queen",
@@ -57,9 +73,10 @@ export const rooms: Room[] = [
       "Linen robes",
       "Wireless internet",
     ],
-    image: withBasePath("/images/room-queen.jpg"),
-    imageAlt:
-      "Bedroom with a linen-dressed queen bed, a walnut writing desk, and windows toward Bebek bay.",
+    images: photos("queen", [
+      "Queen bedroom with rumpled oatmeal linen, sage curtains, a walnut writing desk, and casement windows looking along Bebek bay in afternoon light.",
+      "The same Queen room from the foot of the bed, looking toward the desk, cane chair, and bay windows with wooden houses and fishing boats.",
+    ]),
   },
   {
     slug: "king",
@@ -80,9 +97,10 @@ export const rooms: Room[] = [
       "Linen robes",
       "Wireless internet",
     ],
-    image: withBasePath("/images/room-king.jpg"),
-    imageAlt:
-      "Wide bedroom with cream linen, walnut panelling, and French doors open onto the Bosphorus.",
+    images: photos("king", [
+      "Wide king bedroom with grey linen, an Iznik blue tile dado, and French doors open onto a balcony over the Bosphorus at morning, a ferry on the water.",
+      "The same King room seen from the balcony, looking in past a wrought-iron rail to the grey king bed, Iznik tiles, and a brass wall sconce.",
+    ]),
   },
   {
     slug: "deluxe",
@@ -105,9 +123,10 @@ export const rooms: Room[] = [
       "Linen robes",
       "Wireless internet",
     ],
-    image: withBasePath("/images/room-deluxe.jpg"),
-    imageAlt:
-      "Spacious bedroom with a king bed, two cream armchairs, and a balcony over the Bosphorus.",
+    images: photos("deluxe", [
+      "Deluxe bedroom with an ivory king bed, two cream armchairs, a marble table, and walnut shutters open to a wide balcony at Bosphorus sunset.",
+      "The same Deluxe lounge: two armchairs and a copper pot on marble, looking out through open shutters to the strait at sunset, the bed just in frame.",
+    ]),
   },
   {
     slug: "suite",
@@ -131,9 +150,10 @@ export const rooms: Room[] = [
       "Evening turndown",
       "Wireless internet",
     ],
-    image: withBasePath("/images/room-suite.jpg"),
-    imageAlt:
-      "Sitting room with a cream linen sofa and an open doorway into a separate bedroom above the water.",
+    images: photos("suite", [
+      "Evening sitting room with a cream sofa, a round tea table, and a carved walnut doorway into a separate bedroom above the Bosphorus.",
+      "The Suite bedroom at night, looking back through the carved doorway to the sitting room sofa and tea table, with the strait dark outside.",
+    ]),
   },
   {
     slug: "presidential",
@@ -157,9 +177,10 @@ export const rooms: Room[] = [
       "In-room breakfast on request",
       "Wireless internet",
     ],
-    image: withBasePath("/images/room-presidential.jpg"),
-    imageAlt:
-      "Sitting room with a stone fireplace, a dining table, and doors onto a private Bosphorus terrace.",
+    images: photos("presidential", [
+      "Bosfor Suite sitting room at dusk: pale limestone fireplace, a dining table, a cream sofa, and terrace doors open to the Bosphorus.",
+      "The private water terrace at dusk, looking back through walnut doors to the fireplace, dining table, and sofa of the Bosfor Suite.",
+    ]),
   },
 ]
 

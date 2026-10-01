@@ -9,7 +9,7 @@ import { DateRangeFields } from "@/components/date-range-fields"
 import { Notice } from "@/components/notice"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { formatMoney, formatStayDate, nightLabel } from "@/lib/format"
-import { getRoom, rooms, type Room } from "@/lib/rooms"
+import { getRoom, roomCover, rooms, type Room } from "@/lib/rooms"
 import { authPath, bookPath } from "@/lib/search"
 import { quoteStay } from "@/lib/stay"
 import type { Booking } from "@/lib/storage"
@@ -145,7 +145,7 @@ export function BookingDesk() {
                   )}
                 >
                   <span className="relative h-20 w-28 shrink-0 overflow-hidden rounded-lg bg-muted">
-                    <Image src={item.image} alt="" fill className="object-cover" sizes="112px" />
+                    <Image src={roomCover(item).src} alt="" fill className="object-cover" sizes="112px" />
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="flex items-baseline justify-between gap-3">
