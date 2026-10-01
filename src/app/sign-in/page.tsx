@@ -4,7 +4,7 @@ import { AuthForm } from "@/components/auth-form"
 
 export const metadata: Metadata = {
   title: "Sign in",
-  description: "Sign in to see bookings saved for Bebek Yalı in this browser.",
+  description: "Sign in to see bookings saved for Bosfor Hotels in this browser.",
 }
 
 export default function SignInPage() {

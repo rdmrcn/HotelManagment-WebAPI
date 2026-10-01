@@ -1,7 +1,7 @@
 import Link from "next/link"
 
 const links = [
-  { href: "/", label: "The yalı" },
+  { href: "/", label: "The house" },
   { href: "/rooms", label: "Rooms" },
   { href: "/book", label: "Book" },
   { href: "/ask", label: "Ask" },
@@ -15,9 +15,9 @@ export function SiteFooter() {
     <footer className="mt-auto border-t border-border bg-secondary/40">
       <div className="mx-auto grid w-full max-w-6xl gap-10 px-5 py-12 md:grid-cols-[1.4fr_1fr_1fr]">
         <div>
-          <p className="font-serif text-2xl">Bebek Yalı</p>
+          <p className="font-serif text-2xl">Bosfor Hotels</p>
           <p className="mt-3 max-w-sm text-sm leading-6 text-muted-foreground">
-            A fictional waterfront house in Bebek, Istanbul, with six rooms on the Bosphorus. Breakfast on the terrace, and a quay that stays quiet after dark.
+            A fictional house hotel on the Bosphorus in Istanbul, with six rooms on the Bebek waterfront. Breakfast on the terrace, and a quay that stays quiet after dark.
           </p>
         </div>
         <div>

@@ -1,8 +1,8 @@
-# Bebek Yalı
+# Bosfor Hotels
 
-A portfolio site for Bebek Yalı, a fictional waterfront house hotel in Bebek, Istanbul, on the Bosphorus. Guests can browse six room types, choose dates, see the stay price, register, and save a booking in the browser.
+A portfolio site for Bosfor Hotels, a fictional house hotel on the Bosphorus in Istanbul, on the Bebek waterfront. Bosfor is the strait: Bosphorus, Boğaz. Guests can browse six room types, choose dates, see the stay price, register, and save a booking in the browser.
 
-There is no database and no auth provider. Registrations and bookings stay in `localStorage` on this machine.
+There is no database and no auth provider. Registrations and bookings stay in `localStorage` on this machine (`bosfor-hotels.*`). Confirmation codes start with `BOS-`.
 
 Public site: [https://rdmrcn.github.io/HotelManagment-WebAPI/](https://rdmrcn.github.io/HotelManagment-WebAPI/)
 
@@ -25,4 +25,4 @@ Open [http://127.0.0.1:43123/HotelManagment-WebAPI/](http://127.0.0.1:43123/Hote
 
 ## Rooms
 
-Standard, Queen, King, Deluxe, Suite, and Yalı Suite. Rates are per room, per night, in euros, taxes included.
+Standard, Queen, King, Deluxe, Suite, and Bosfor Suite. Rates are per room, per night, in euros, taxes included.

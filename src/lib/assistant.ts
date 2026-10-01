@@ -19,7 +19,7 @@ const helpText = [
 
 function roomsText() {
   const lines = rooms.map((room) => `${room.name}, ${formatMoney(room.nightlyRate)} a night.`)
-  return `Bebek Yalı has six room types. Each rate is per room, per night, and taxes are included. ${lines.join(" ")}`
+  return `Bosfor Hotels has six room types. Each rate is per room, per night, and taxes are included. ${lines.join(" ")}`
 }
 
 function datesText() {
@@ -39,7 +39,7 @@ function bookingText() {
   return [
     "Create an account with your name, email, and a password, or sign in if this browser already has one.",
     "Then open Book, choose the dates and a room, and press Confirm booking.",
-    "The yalı gives you a confirmation code that starts with BYL-.",
+    "The hotel gives you a confirmation code that starts with BOS-.",
     "If you are not signed in, Confirm booking asks you to create an account or sign in first.",
   ].join(" ")
 }
@@ -69,6 +69,7 @@ const patterns: Record<AssistantTopic, RegExp[]> = {
     /\bdeluxe\b/,
     /\bsuites?\b/,
     /\bpresidential\b/,
+    /\bbosfor\b/,
     /\byal[iı]s?\b/,
   ],
   dates: [

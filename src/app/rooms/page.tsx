@@ -5,7 +5,7 @@ import { rooms } from "@/lib/rooms"
 
 export const metadata: Metadata = {
   title: "Rooms",
-  description: "Standard, Queen, King, Deluxe, Suite, and Yalı Suite at Bebek Yalı in Bebek, Istanbul.",
+  description: "Standard, Queen, King, Deluxe, Suite, and Bosfor Suite at Bosfor Hotels on the Bebek waterfront in Istanbul.",
 }
 
 export default function RoomsPage() {
