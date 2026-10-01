@@ -89,7 +89,7 @@ export default function HomePage() {
         </div>
         <div className="mt-10 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
           {rooms.map((room) => (
-            <RoomCard key={room.slug} room={room} heading="h3" />
+            <RoomCard key={room.slug} room={room} heading="h3" coverOnly />
           ))}
         </div>
       </section>

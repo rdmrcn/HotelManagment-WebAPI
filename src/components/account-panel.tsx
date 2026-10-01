@@ -7,7 +7,7 @@ import { Notice } from "@/components/notice"
 import { PageHeader } from "@/components/page-header"
 import { Button } from "@/components/ui/button"
 import { formatMoney, formatStayDate, nightLabel } from "@/lib/format"
-import { getRoom } from "@/lib/rooms"
+import { getRoom, roomCover } from "@/lib/rooms"
 
 export function AccountPanel() {
   const { status, guest, bookings, storageError, reload, signOut } = useAuth()
@@ -102,7 +102,7 @@ export function AccountPanel() {
               <li key={booking.id} className="flex flex-col gap-4 rounded-2xl bg-card p-4 ring-1 ring-foreground/10 sm:flex-row">
                 <div className="relative h-36 w-full overflow-hidden rounded-xl bg-muted sm:h-auto sm:w-40 sm:shrink-0">
                   {room ? (
-                    <Image src={room.image} alt="" fill className="object-cover" sizes="160px" />
+                    <Image src={roomCover(room).src} alt="" fill className="object-cover" sizes="160px" />
                   ) : null}
                 </div>
                 <div className="min-w-0 flex-1">
