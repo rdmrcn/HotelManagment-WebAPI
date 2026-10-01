@@ -24,7 +24,7 @@ const notes = [
   },
   {
     title: "The house",
-    body: "28 rooms, one harbor, no conference floor. The courtyard fountain runs through the afternoon.",
+    body: "Six room types, one harbor, no conference floor. The courtyard fountain runs through the afternoon.",
   },
 ]
 
@@ -46,7 +46,7 @@ export default function HomePage() {
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-white/80">Cala Vespera</p>
             <h1 className="mt-3 max-w-3xl text-6xl text-white md:text-8xl">Aurelia</h1>
             <p className="mt-4 max-w-xl text-lg leading-8 text-white/90">
-              A 28-room house above the harbor. Breakfast on the terrace, shutters open to the water, and rooms that stay quiet in the afternoon.
+              Six room types above the harbor. Breakfast on the terrace, shutters open to the water, and rooms that stay quiet in the afternoon.
             </p>
           </div>
         </div>
@@ -72,7 +72,7 @@ export default function HomePage() {
             Aurelia sits on a low cliff at Cala Vespera, a harbor town that exists only here. The rooms look either into the courtyard or out toward the boats. Evenings end on the terrace, when the water takes the color of the stone.
           </p>
           <p className="mt-4 text-base leading-7 text-foreground/80">
-            There is a bakery on the ground floor, a fountain that keeps the afternoon cool, and 28 rooms. That is the whole of it.
+            There is a bakery on the ground floor, a fountain that keeps the afternoon cool, and six room types. That is the whole of it.
           </p>
         </div>
       </section>
@@ -121,12 +121,20 @@ export default function HomePage() {
               <p className="mt-4 max-w-md text-base leading-7 text-white/90">
                 Choose your dates, compare the six rooms, and keep the reservation in this browser.
               </p>
-              <Link
-                href="/book"
-                className="mt-6 inline-flex h-11 w-fit items-center rounded-full bg-background px-5 text-sm font-medium text-foreground"
-              >
-                Reserve a room
-              </Link>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/book"
+                  className="inline-flex h-11 w-fit items-center rounded-full bg-background px-5 text-sm font-medium text-foreground"
+                >
+                  Reserve a room
+                </Link>
+                <Link
+                  href="/ask"
+                  className="inline-flex h-11 w-fit items-center rounded-full border border-white/40 px-5 text-sm font-medium text-white"
+                >
+                  Ask about a stay
+                </Link>
+              </div>
             </div>
           </div>
         </div>

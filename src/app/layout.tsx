@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     template: "%s · Aurelia",
   },
   description:
-    "Aurelia is a fictional 28-room hotel above the harbor at Cala Vespera. Browse rooms, choose dates, and reserve a stay in this browser.",
+    "Aurelia is a fictional hotel above the harbor at Cala Vespera, with six room types. Browse rooms, choose dates, and reserve a stay in this browser.",
 }
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -4,6 +4,7 @@ const links = [
   { href: "/", label: "The house" },
   { href: "/rooms", label: "Rooms" },
   { href: "/book", label: "Book" },
+  { href: "/ask", label: "Ask" },
   { href: "/account", label: "Account" },
 ]
 
@@ -16,7 +17,7 @@ export function SiteFooter() {
         <div>
           <p className="font-serif text-2xl">Aurelia</p>
           <p className="mt-3 max-w-sm text-sm leading-6 text-muted-foreground">
-            A fictional 28-room house above the harbor at Cala Vespera. Breakfast on the terrace, and rooms that stay quiet in the afternoon.
+            A fictional house above the harbor at Cala Vespera, with six room types. Breakfast on the terrace, and rooms that stay quiet in the afternoon.
           </p>
         </div>
         <div>
