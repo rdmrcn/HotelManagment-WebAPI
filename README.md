@@ -1,10 +1,12 @@
 # Aurelia
 
-A portfolio site for Aurelia, a fictional boutique hotel above the harbor at Cala Vespera. Guests can browse six rooms, choose dates, see the stay price, register, and save a booking in the browser.
+A portfolio site for Aurelia, a fictional boutique hotel above the harbor at Cala Vespera. Guests can browse six room types, choose dates, see the stay price, register, and save a booking in the browser.
 
 There is no database and no auth provider. Registrations and bookings stay in `localStorage` on this machine.
 
 Public site: [https://rdmrcn.github.io/HotelManagment-WebAPI/](https://rdmrcn.github.io/HotelManagment-WebAPI/)
+
+The Ask page answers a short list of commands: the six nightly prices, how a stay total is calculated, how to register and confirm a booking, and the fact that accounts and bookings stay in this browser. It does not call an external service.
 
 ## Run locally
 

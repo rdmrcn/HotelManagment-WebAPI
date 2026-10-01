@@ -19,6 +19,7 @@ const links = [
   { href: "/", label: "The house" },
   { href: "/rooms", label: "Rooms" },
   { href: "/book", label: "Book" },
+  { href: "/ask", label: "Ask" },
 ]
 
 function isActive(pathname: string, href: string) {
