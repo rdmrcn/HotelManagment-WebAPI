@@ -8,9 +8,9 @@ import { rooms } from "@/lib/rooms"
 import { cn } from "cn"
 
 export const metadata = {
-  title: { absolute: "Bebek Yalı · A house on the Bosphorus" },
+  title: { absolute: "Bosfor Hotels · A house on the Bosphorus" },
   description:
-    "Bebek Yalı is a fictional waterfront house hotel in Bebek, Istanbul. Six rooms, terrace breakfast, and a private quay on the strait.",
+    "Bosfor Hotels is a fictional house hotel on the Bosphorus in Istanbul, on the Bebek waterfront. Six rooms, terrace breakfast, and a private quay on the strait.",
 }
 
 const notes = [
@@ -23,7 +23,7 @@ const notes = [
     body: "Served on the terrace until 10:30. Simit, white cheeses, honey, tomatoes, and tea in tulip glasses.",
   },
   {
-    title: "The yalı",
+    title: "The house",
     body: "Six room types on the water, no conference floor. Evenings end on the quay, when the strait goes dark.",
   },
 ]
@@ -44,7 +44,7 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-t from-[#071422]/80 via-[#071422]/35 to-[#071422]/20" />
           <div className="relative mx-auto flex min-h-[78vh] w-full max-w-6xl flex-col justify-end px-5 pb-28 md:min-h-[calc(100vh-4rem)] md:pb-32">
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-white/80">Bebek, Istanbul</p>
-            <h1 className="mt-3 max-w-3xl text-6xl text-white md:text-8xl">Bebek Yalı</h1>
+            <h1 className="mt-3 max-w-3xl text-6xl text-white md:text-8xl">Bosfor Hotels</h1>
             <p className="mt-4 max-w-xl text-lg leading-8 text-white/90">
               Six rooms on the Bosphorus. Breakfast facing the strait, walnut shutters open to the water, and a house that stays quiet in the afternoon.
             </p>
@@ -66,10 +66,10 @@ export default function HomePage() {
           />
         </div>
         <div>
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">The yalı</p>
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">The house</p>
           <h2 className="mt-3 text-4xl md:text-5xl">A wooden house on the European shore</h2>
           <p className="mt-5 text-base leading-7 text-foreground/80">
-            Bebek Yalı is a fictional waterfront house in Bebek, Istanbul, restored as a small hotel. The rooms look either into the garden or out across the strait to the Asian hills. The quay is private; the village is a short walk along Cevdet Paşa.
+            Bosfor Hotels is a fictional house hotel on the Bosphorus in Istanbul — Bosfor for the strait, the Boğaz. The rooms look either into the garden or out across the water to the Asian hills. The quay is private; Bebek village is a short walk along Cevdet Paşa.
           </p>
           <p className="mt-4 text-base leading-7 text-foreground/80">
             There is tea on the terrace in the morning, brass lamps after dark, and six room types. That is the whole of it.

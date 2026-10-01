@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/page-header"
 
 export const metadata: Metadata = {
   title: "Book",
-  description: "Choose dates and a room at Bebek Yalı, see the stay price, and confirm a booking in this browser.",
+  description: "Choose dates and a room at Bosfor Hotels, see the stay price, and confirm a booking in this browser.",
 }
 
 export default function BookPage() {

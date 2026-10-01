@@ -25,7 +25,7 @@ export const rooms: Room[] = [
     summary:
       "A quiet double on the garden. Cream linen, a brass lamp, and the hedge path when the window is open.",
     description:
-      "The Standard is the smallest room in the yalı and the one that looks into the garden rather than the strait. A double bed in cream linen, a walnut desk, and a shower that gets properly hot. It suits two people who will spend the day along Bebek's shore and want a dark, calm room to come back to.",
+      "The Standard is the smallest room in the house and the one that looks into the garden rather than the strait. A double bed in cream linen, a walnut desk, and a shower that gets properly hot. It suits two people who will spend the day along Bebek's shore and want a dark, calm room to come back to.",
     amenities: [
       "Double bed",
       "Garden view",
@@ -137,7 +137,7 @@ export const rooms: Room[] = [
   },
   {
     slug: "presidential",
-    name: "Yalı Suite",
+    name: "Bosfor Suite",
     nightlyRate: 1250,
     size: "102 m²",
     bed: "King bed",
@@ -145,7 +145,7 @@ export const rooms: Room[] = [
     summary:
       "The water floor. A stone fireplace, a long sofa, and a private terrace facing the Bosphorus.",
     description:
-      "The Yalı Suite is the water floor of the house. A pale stone fireplace, a dining table for four, and doors onto a terrace that is not shared with other rooms. Breakfast can be brought out. At dusk the strait goes the color of the walnut, and the hills on the Asian shore light up one by one.",
+      "The Bosfor Suite is the water floor of the house. A pale stone fireplace, a dining table for four, and doors onto a terrace that is not shared with other rooms. Breakfast can be brought out. At dusk the strait goes the color of the walnut, and the hills on the Asian shore light up one by one.",
     amenities: [
       "Private terrace",
       "Stone fireplace",

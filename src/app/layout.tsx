@@ -20,11 +20,11 @@ const cormorant = Cormorant_Garamond({
 
 export const metadata: Metadata = {
   title: {
-    default: "Bebek Yalı",
-    template: "%s · Bebek Yalı",
+    default: "Bosfor Hotels",
+    template: "%s · Bosfor Hotels",
   },
   description:
-    "Bebek Yalı is a fictional waterfront house hotel in Bebek, Istanbul, with six room types on the Bosphorus. Browse rooms, choose dates, and reserve a stay in this browser.",
+    "Bosfor Hotels is a fictional house hotel on the Bosphorus in Istanbul, on the Bebek waterfront. Six room types. Browse rooms, choose dates, and reserve a stay in this browser.",
 }
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

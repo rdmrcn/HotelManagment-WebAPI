@@ -37,7 +37,7 @@ export function CommandDesk() {
           ask(question)
         }}
       >
-        <Label htmlFor="command">Ask about the yalı</Label>
+        <Label htmlFor="command">Ask about the hotel</Label>
         <div className="flex flex-col gap-3 sm:flex-row">
           <Input
             id="command"
