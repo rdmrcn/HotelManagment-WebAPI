@@ -1,21 +1,24 @@
 import type { Metadata } from "next"
+import { Suspense } from "react"
 import { AuthForm } from "@/components/auth-form"
-import { firstParam, safeNext } from "@/lib/search"
 
 export const metadata: Metadata = {
   title: "Sign in",
   description: "Sign in to see bookings saved for Aurelia in this browser.",
 }
 
-export default async function SignInPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ next?: string | string[] }>
-}) {
-  const params = await searchParams
+export default function SignInPage() {
   return (
     <div className="mx-auto w-full max-w-6xl px-5 py-14 md:py-20">
-      <AuthForm mode="sign-in" nextPath={safeNext(firstParam(params.next))} />
+      <Suspense
+        fallback={
+          <p role="status" className="text-sm text-muted-foreground">
+            Checking this browser for a saved account…
+          </p>
+        }
+      >
+        <AuthForm mode="sign-in" />
+      </Suspense>
     </div>
   )
 }

@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { useAuth } from "@/components/auth-provider"
 import { DateRangeFields } from "@/components/date-range-fields"
@@ -14,15 +15,11 @@ import { quoteStay } from "@/lib/stay"
 import type { Booking } from "@/lib/storage"
 import { cn } from "cn"
 
-export function BookingDesk({
-  initialCheckIn,
-  initialCheckOut,
-  initialRoom,
-}: {
-  initialCheckIn: string
-  initialCheckOut: string
-  initialRoom: string
-}) {
+export function BookingDesk() {
+  const searchParams = useSearchParams()
+  const initialCheckIn = searchParams.get("checkIn") ?? ""
+  const initialCheckOut = searchParams.get("checkOut") ?? ""
+  const initialRoom = searchParams.get("room") ?? ""
   const { status, guest, addBooking } = useAuth()
   const [checkIn, setCheckIn] = useState(initialCheckIn)
   const [checkOut, setCheckOut] = useState(initialCheckOut)

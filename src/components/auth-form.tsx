@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
 import { useAuth } from "@/components/auth-provider"
 import { Notice } from "@/components/notice"
@@ -10,17 +10,17 @@ import { Button, buttonVariants } from "@/components/ui/button"
 import { cn } from "cn"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { authPath } from "@/lib/search"
+import { authPath, safeNext } from "@/lib/search"
 import { normalizeRegistration, normalizeSignIn, type FieldErrors } from "@/lib/validation"
 
 export function AuthForm({
   mode,
-  nextPath,
 }: {
   mode: "register" | "sign-in"
-  nextPath: string
 }) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const nextPath = safeNext(searchParams.get("next") ?? "")
   const { status, guest, storageError, register, signIn, signOut } = useAuth()
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
