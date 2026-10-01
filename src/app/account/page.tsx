@@ -3,7 +3,7 @@ import { AccountPanel } from "@/components/account-panel"
 
 export const metadata: Metadata = {
   title: "Account",
-  description: "See bookings saved for your Aurelia guest account in this browser.",
+  description: "See bookings saved for your Bebek Yalı guest account in this browser.",
 }
 
 export default function AccountPage() {

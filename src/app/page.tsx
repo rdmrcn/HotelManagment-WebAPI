@@ -8,23 +8,23 @@ import { rooms } from "@/lib/rooms"
 import { cn } from "cn"
 
 export const metadata = {
-  title: { absolute: "Aurelia · A house above the harbor" },
+  title: { absolute: "Bebek Yalı · A house on the Bosphorus" },
   description:
-    "Aurelia is a fictional boutique hotel at Cala Vespera. Six rooms, terrace breakfast, and a quiet courtyard above the water.",
+    "Bebek Yalı is a fictional waterfront house hotel in Bebek, Istanbul. Six rooms, terrace breakfast, and a private quay on the strait.",
 }
 
 const notes = [
   {
     title: "Arrival",
-    body: "Check-in from 15:00. Check-out by 11:00. If you arrive early, bags can wait in the courtyard.",
+    body: "Check-in from 15:00. Check-out by 11:00. If you arrive early, bags can wait in the hall by the garden.",
   },
   {
     title: "Breakfast",
-    body: "Served on the terrace until 10:30. Bread from the ground-floor bakery, citrus, and coffee in ceramic cups.",
+    body: "Served on the terrace until 10:30. Simit, white cheeses, honey, tomatoes, and tea in tulip glasses.",
   },
   {
-    title: "The house",
-    body: "Six room types, one harbor, no conference floor. The courtyard fountain runs through the afternoon.",
+    title: "The yalı",
+    body: "Six room types on the water, no conference floor. Evenings end on the quay, when the strait goes dark.",
   },
 ]
 
@@ -34,19 +34,19 @@ export default function HomePage() {
       <section className="relative">
         <div className="relative min-h-[78vh] md:min-h-[calc(100vh-4rem)]">
           <Image
-            src={withBasePath("/images/hero-harbor.jpg")}
-            alt="Limestone hotel with shuttered windows above a small harbor at dusk."
+            src={withBasePath("/images/hero-bosphorus.jpg")}
+            alt="Wooden waterfront yalı with cream shutters and a stone quay on the Bosphorus at dusk."
             fill
             priority
             className="object-cover"
             sizes="100vw"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#1a1410]/80 via-[#1a1410]/35 to-[#1a1410]/20" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#071422]/80 via-[#071422]/35 to-[#071422]/20" />
           <div className="relative mx-auto flex min-h-[78vh] w-full max-w-6xl flex-col justify-end px-5 pb-28 md:min-h-[calc(100vh-4rem)] md:pb-32">
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-white/80">Cala Vespera</p>
-            <h1 className="mt-3 max-w-3xl text-6xl text-white md:text-8xl">Aurelia</h1>
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-white/80">Bebek, Istanbul</p>
+            <h1 className="mt-3 max-w-3xl text-6xl text-white md:text-8xl">Bebek Yalı</h1>
             <p className="mt-4 max-w-xl text-lg leading-8 text-white/90">
-              Six room types above the harbor. Breakfast on the terrace, shutters open to the water, and rooms that stay quiet in the afternoon.
+              Six rooms on the Bosphorus. Breakfast facing the strait, walnut shutters open to the water, and a house that stays quiet in the afternoon.
             </p>
           </div>
         </div>
@@ -58,21 +58,21 @@ export default function HomePage() {
       <section className="mx-auto grid w-full max-w-6xl items-center gap-10 px-5 py-20 md:grid-cols-2 md:py-28">
         <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
           <Image
-            src={withBasePath("/images/courtyard.jpg")}
-            alt="Stone courtyard with a fountain, terracotta pots, and a table set under warm light."
+            src={withBasePath("/images/waterside-garden.jpg")}
+            alt="Stone garden path, lavender, and a linen-dressed table beside a wooden yalı on the Bosphorus."
             fill
             className="object-cover"
             sizes="(max-width: 768px) 100vw, 50vw"
           />
         </div>
         <div>
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">The house</p>
-          <h2 className="mt-3 text-4xl md:text-5xl">Built around a courtyard, facing the water</h2>
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">The yalı</p>
+          <h2 className="mt-3 text-4xl md:text-5xl">A wooden house on the European shore</h2>
           <p className="mt-5 text-base leading-7 text-foreground/80">
-            Aurelia sits on a low cliff at Cala Vespera, a harbor town that exists only here. The rooms look either into the courtyard or out toward the boats. Evenings end on the terrace, when the water takes the color of the stone.
+            Bebek Yalı is a fictional waterfront house in Bebek, Istanbul, restored as a small hotel. The rooms look either into the garden or out across the strait to the Asian hills. The quay is private; the village is a short walk along Cevdet Paşa.
           </p>
           <p className="mt-4 text-base leading-7 text-foreground/80">
-            There is a bakery on the ground floor, a fountain that keeps the afternoon cool, and six room types. That is the whole of it.
+            There is tea on the terrace in the morning, brass lamps after dark, and six room types. That is the whole of it.
           </p>
         </div>
       </section>
@@ -109,15 +109,15 @@ export default function HomePage() {
         <div className="relative overflow-hidden rounded-3xl">
           <div className="relative min-h-[420px]">
             <Image
-              src={withBasePath("/images/terrace-breakfast.jpg")}
-              alt="Breakfast on a stone terrace above the sea."
+              src={withBasePath("/images/breakfast-terrace.jpg")}
+              alt="Turkish breakfast on a linen-dressed table beside a wooden yalı and the Bosphorus."
               fill
               className="object-cover"
               sizes="(max-width: 1152px) 100vw, 1152px"
             />
-            <div className="absolute inset-0 bg-[#1a1410]/45" />
+            <div className="absolute inset-0 bg-[#071422]/45" />
             <div className="relative flex min-h-[420px] flex-col justify-end p-6 md:p-12">
-              <h2 className="max-w-lg text-4xl text-white md:text-5xl">Come for the terrace, stay for the quiet</h2>
+              <h2 className="max-w-lg text-4xl text-white md:text-5xl">Come for the strait, stay for the quiet</h2>
               <p className="mt-4 max-w-md text-base leading-7 text-white/90">
                 Choose your dates, compare the six rooms, and keep the reservation in this browser.
               </p>

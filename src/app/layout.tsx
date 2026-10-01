@@ -1,34 +1,35 @@
 import type { Metadata } from "next"
-import { Fraunces, Outfit } from "next/font/google"
+import { Cormorant_Garamond, Source_Sans_3 } from "next/font/google"
 import { AuthProvider } from "@/components/auth-provider"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import "./globals.css"
 
-const outfit = Outfit({
-  subsets: ["latin"],
-  variable: "--font-outfit",
+const sourceSans = Source_Sans_3({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-source-sans",
   display: "swap",
 })
 
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  variable: "--font-fraunces",
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-cormorant",
   display: "swap",
 })
 
 export const metadata: Metadata = {
   title: {
-    default: "Aurelia",
-    template: "%s · Aurelia",
+    default: "Bebek Yalı",
+    template: "%s · Bebek Yalı",
   },
   description:
-    "Aurelia is a fictional hotel above the harbor at Cala Vespera, with six room types. Browse rooms, choose dates, and reserve a stay in this browser.",
+    "Bebek Yalı is a fictional waterfront house hotel in Bebek, Istanbul, with six room types on the Bosphorus. Browse rooms, choose dates, and reserve a stay in this browser.",
 }
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${outfit.variable} ${fraunces.variable} h-full antialiased`}>
+    <html lang="en" className={`${sourceSans.variable} ${cormorant.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-background text-foreground">
         <AuthProvider>
           <a

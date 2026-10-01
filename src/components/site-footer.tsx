@@ -1,7 +1,7 @@
 import Link from "next/link"
 
 const links = [
-  { href: "/", label: "The house" },
+  { href: "/", label: "The yalı" },
   { href: "/rooms", label: "Rooms" },
   { href: "/book", label: "Book" },
   { href: "/ask", label: "Ask" },
@@ -15,17 +15,17 @@ export function SiteFooter() {
     <footer className="mt-auto border-t border-border bg-secondary/40">
       <div className="mx-auto grid w-full max-w-6xl gap-10 px-5 py-12 md:grid-cols-[1.4fr_1fr_1fr]">
         <div>
-          <p className="font-serif text-2xl">Aurelia</p>
+          <p className="font-serif text-2xl">Bebek Yalı</p>
           <p className="mt-3 max-w-sm text-sm leading-6 text-muted-foreground">
-            A fictional house above the harbor at Cala Vespera, with six room types. Breakfast on the terrace, and rooms that stay quiet in the afternoon.
+            A fictional waterfront house in Bebek, Istanbul, with six rooms on the Bosphorus. Breakfast on the terrace, and a quay that stays quiet after dark.
           </p>
         </div>
         <div>
           <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Visit</p>
           <p className="mt-3 text-sm leading-6">
-            14 Via della Cala
+            Cevdet Paşa Caddesi
             <br />
-            Cala Vespera
+            Bebek, Istanbul
           </p>
           <p className="mt-3 text-sm leading-6 text-muted-foreground">
             Check-in from 15:00

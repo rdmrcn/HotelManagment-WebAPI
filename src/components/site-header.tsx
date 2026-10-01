@@ -16,7 +16,7 @@ import {
 import { cn } from "cn"
 
 const links = [
-  { href: "/", label: "The house" },
+  { href: "/", label: "The yalı" },
   { href: "/rooms", label: "Rooms" },
   { href: "/book", label: "Book" },
   { href: "/ask", label: "Ask" },
@@ -38,7 +38,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-border/80 bg-background/95 backdrop-blur">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-5">
         <Link href="/" className="font-serif text-2xl tracking-tight outline-none focus-visible:ring-3 focus-visible:ring-ring/50">
-          Aurelia
+          Bebek Yalı
         </Link>
         <nav className="hidden items-center gap-6 md:flex" aria-label="Primary">
           {links.map((link) => (
@@ -80,7 +80,7 @@ export function SiteHeader() {
           </SheetTrigger>
           <SheetContent side="right" className="bg-background">
             <SheetHeader>
-              <SheetTitle className="font-serif text-2xl">Aurelia</SheetTitle>
+              <SheetTitle className="font-serif text-2xl">Bebek Yalı</SheetTitle>
             </SheetHeader>
             <nav className="flex flex-col gap-1 px-4" aria-label="Mobile">
               {links.map((link) => (
