@@ -4,7 +4,7 @@ A portfolio site for Aurelia, a fictional boutique hotel above the harbor at Cal
 
 There is no database and no auth provider. Registrations and bookings stay in `localStorage` on this machine.
 
-A basic-command assistant is the next phase.
+Public site: [https://rdmrcn.github.io/HotelManagment-WebAPI/](https://rdmrcn.github.io/HotelManagment-WebAPI/)
 
 ## Run locally
 
@@ -13,13 +13,12 @@ npm install
 npm run dev
 ```
 
-Open [http://127.0.0.1:43123](http://127.0.0.1:43123).
+Open [http://127.0.0.1:43123/HotelManagment-WebAPI/](http://127.0.0.1:43123/HotelManagment-WebAPI/). The app is published from this repository, so local and GitHub Pages both use the `/HotelManagment-WebAPI` base path.
 
 ## Scripts
 
 - `npm run dev` — development server on port 43123
-- `npm run build` — production build
-- `npm run start` — serve the production build
+- `npm run build` — static export to `out/` (used by GitHub Pages)
 - `npm run lint` — ESLint
 
 ## Rooms

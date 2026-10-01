@@ -3,6 +3,7 @@ import Link from "next/link"
 import { RoomCard } from "@/components/room-card"
 import { StaySearch } from "@/components/stay-search"
 import { buttonVariants } from "@/components/ui/button"
+import { withBasePath } from "@/lib/asset"
 import { rooms } from "@/lib/rooms"
 import { cn } from "cn"
 
@@ -33,7 +34,7 @@ export default function HomePage() {
       <section className="relative">
         <div className="relative min-h-[78vh] md:min-h-[calc(100vh-4rem)]">
           <Image
-            src="/images/hero-harbor.jpg"
+            src={withBasePath("/images/hero-harbor.jpg")}
             alt="Limestone hotel with shuttered windows above a small harbor at dusk."
             fill
             priority
@@ -57,7 +58,7 @@ export default function HomePage() {
       <section className="mx-auto grid w-full max-w-6xl items-center gap-10 px-5 py-20 md:grid-cols-2 md:py-28">
         <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
           <Image
-            src="/images/courtyard.jpg"
+            src={withBasePath("/images/courtyard.jpg")}
             alt="Stone courtyard with a fountain, terracotta pots, and a table set under warm light."
             fill
             className="object-cover"
@@ -108,7 +109,7 @@ export default function HomePage() {
         <div className="relative overflow-hidden rounded-3xl">
           <div className="relative min-h-[420px]">
             <Image
-              src="/images/terrace-breakfast.jpg"
+              src={withBasePath("/images/terrace-breakfast.jpg")}
               alt="Breakfast on a stone terrace above the sea."
               fill
               className="object-cover"

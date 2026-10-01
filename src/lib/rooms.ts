@@ -1,3 +1,5 @@
+import { withBasePath } from "@/lib/asset"
+
 export type Room = {
   slug: string
   name: string
@@ -32,7 +34,7 @@ export const rooms: Room[] = [
       "Linen robes",
       "Wireless internet",
     ],
-    image: "/images/room-standard.jpg",
+    image: withBasePath("/images/room-standard.jpg"),
     imageAlt:
       "Compact bedroom with oatmeal linen, a ceramic lamp, and a window onto the courtyard.",
   },
@@ -56,7 +58,7 @@ export const rooms: Room[] = [
       "Linen robes",
       "Wireless internet",
     ],
-    image: "/images/room-queen.jpg",
+    image: withBasePath("/images/room-queen.jpg"),
     imageAlt:
       "Bedroom with a linen-dressed bed, a writing desk, and a balcony toward the water.",
   },
@@ -79,7 +81,7 @@ export const rooms: Room[] = [
       "Linen robes",
       "Wireless internet",
     ],
-    image: "/images/room-king.jpg",
+    image: withBasePath("/images/room-king.jpg"),
     imageAlt:
       "Wide bedroom with French doors open onto a balcony and the water.",
   },
@@ -104,7 +106,7 @@ export const rooms: Room[] = [
       "Linen robes",
       "Wireless internet",
     ],
-    image: "/images/room-deluxe.jpg",
+    image: withBasePath("/images/room-deluxe.jpg"),
     imageAlt:
       "Spacious bedroom with a king bed, two armchairs, and a balcony.",
   },
@@ -130,7 +132,7 @@ export const rooms: Room[] = [
       "Evening turndown",
       "Wireless internet",
     ],
-    image: "/images/room-suite.jpg",
+    image: withBasePath("/images/room-suite.jpg"),
     imageAlt:
       "Sitting room with a linen sofa and a doorway into a separate bedroom.",
   },
@@ -156,7 +158,7 @@ export const rooms: Room[] = [
       "In-room breakfast on request",
       "Wireless internet",
     ],
-    image: "/images/room-presidential.jpg",
+    image: withBasePath("/images/room-presidential.jpg"),
     imageAlt:
       "Top-floor sitting room with a stone fireplace and doors onto a private sea terrace.",
   },
