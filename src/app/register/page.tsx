@@ -4,7 +4,7 @@ import { AuthForm } from "@/components/auth-form"
 
 export const metadata: Metadata = {
   title: "Register",
-  description: "Create a guest account for Aurelia. Your details stay in this browser.",
+  description: "Create a guest account for Bebek Yalı. Your details stay in this browser.",
 }
 
 export default function RegisterPage() {

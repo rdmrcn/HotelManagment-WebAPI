@@ -124,7 +124,7 @@ export function BookingDesk() {
 
         <section className="grid gap-4">
           <h2 className="text-2xl">Room</h2>
-          {unknownRoom ? <Notice>That room is not in the house. Choose one below.</Notice> : null}
+          {unknownRoom ? <Notice>That room is not in the yalı. Choose one below.</Notice> : null}
           <div className="grid gap-3">
             {rooms.map((item) => {
               const selected = item.slug === roomSlug
@@ -236,7 +236,7 @@ export function BookingDesk() {
           </div>
         ) : null}
         <p className="mt-3 text-xs leading-5 text-muted-foreground">
-          Rates are per room, per night, taxes included. Aurelia is fictional, and the reservation stays in this browser.
+          Rates are per room, per night, taxes included. Bebek Yalı is fictional, and the reservation stays in this browser.
         </p>
       </aside>
     </form>

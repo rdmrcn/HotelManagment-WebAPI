@@ -31,7 +31,7 @@ export function StaySearch() {
     <form
       onSubmit={onSubmit}
       noValidate
-      className="rounded-2xl bg-background p-4 text-foreground shadow-[0_24px_60px_-32px_rgba(36,22,14,0.7)] ring-1 ring-foreground/10 md:p-5"
+      className="rounded-2xl bg-background p-4 text-foreground shadow-[0_24px_60px_-32px_rgba(7,20,34,0.55)] ring-1 ring-foreground/10 md:p-5"
     >
       <div className="grid gap-4 md:grid-cols-[1fr_auto] md:items-end">
         <DateRangeFields

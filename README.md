@@ -1,6 +1,6 @@
-# Aurelia
+# Bebek Yalı
 
-A portfolio site for Aurelia, a fictional boutique hotel above the harbor at Cala Vespera. Guests can browse six room types, choose dates, see the stay price, register, and save a booking in the browser.
+A portfolio site for Bebek Yalı, a fictional waterfront house hotel in Bebek, Istanbul, on the Bosphorus. Guests can browse six room types, choose dates, see the stay price, register, and save a booking in the browser.
 
 There is no database and no auth provider. Registrations and bookings stay in `localStorage` on this machine.
 
@@ -25,4 +25,4 @@ Open [http://127.0.0.1:43123/HotelManagment-WebAPI/](http://127.0.0.1:43123/Hote
 
 ## Rooms
 
-Standard, Queen, King, Deluxe, Suite, and Presidential Suite. Rates are per room, per night, in euros, taxes included.
+Standard, Queen, King, Deluxe, Suite, and Yalı Suite. Rates are per room, per night, in euros, taxes included.

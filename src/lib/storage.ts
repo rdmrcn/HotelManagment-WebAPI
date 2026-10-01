@@ -1,9 +1,9 @@
 import { getRoom } from "@/lib/rooms"
 import { quoteStay } from "@/lib/stay"
 
-const GUESTS_KEY = "aurelia.guests"
-const BOOKINGS_KEY = "aurelia.bookings"
-const SESSION_KEY = "aurelia.session"
+const GUESTS_KEY = "bebek-yali.guests"
+const BOOKINGS_KEY = "bebek-yali.bookings"
+const SESSION_KEY = "bebek-yali.session"
 
 const READ_ERROR =
   "Saved details in this browser could not be read. Allow site data for this page, then try again."
@@ -132,7 +132,7 @@ function confirmationCode() {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
   const bytes = new Uint8Array(4)
   crypto.getRandomValues(bytes)
-  let code = "AUR-"
+  let code = "BYL-"
   for (const byte of bytes) code += alphabet[byte % alphabet.length]
   return code
 }
@@ -239,7 +239,7 @@ export function saveBooking(
   }
 
   const room = getRoom(input.roomSlug)
-  if (!room) return { ok: false, error: "That room is not in the house." }
+  if (!room) return { ok: false, error: "That room is not in the yalı." }
   const quote = quoteStay(room.nightlyRate, input.checkIn, input.checkOut)
   if (!quote.ok) return { ok: false, error: quote.error }
 

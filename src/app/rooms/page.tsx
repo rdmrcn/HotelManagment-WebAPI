@@ -5,7 +5,7 @@ import { rooms } from "@/lib/rooms"
 
 export const metadata: Metadata = {
   title: "Rooms",
-  description: "Standard, Queen, King, Deluxe, Suite, and Presidential Suite at Aurelia in Cala Vespera.",
+  description: "Standard, Queen, King, Deluxe, Suite, and Yalı Suite at Bebek Yalı in Bebek, Istanbul.",
 }
 
 export default function RoomsPage() {
@@ -13,8 +13,8 @@ export default function RoomsPage() {
     <div className="mx-auto w-full max-w-6xl px-5 py-14 md:py-20">
       <PageHeader
         eyebrow="Rooms"
-        title="Six rooms, one house"
-        lede="From a courtyard double to the top-floor terrace. Each rate is per room, per night, with taxes included."
+        title="Six rooms on the strait"
+        lede="From a garden double to the water-floor terrace. Each rate is per room, per night, with taxes included."
       />
       <div className="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
         {rooms.map((room) => (
