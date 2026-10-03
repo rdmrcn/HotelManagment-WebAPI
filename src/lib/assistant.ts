@@ -21,7 +21,7 @@ function roomsText() {
   const lines = rooms.map(
     (room) => `${room.name} (${room.view}), ${formatMoney(room.nightlyRate)} a night.`,
   )
-  return `Bosfor Hotels has eight room types. Each rate is per room, per night, and taxes are included. Queen Double and King Double face the street and cost less than the rooms on the water. ${lines.join(" ")}`
+  return `Bosfor Hotels has eight room types. Each rate is per room, per night, and taxes are included. Standard Room, Queen Room, King Room, Queen Double Room, and King Double Room face the city. Deluxe Room, Suite Room, and Bosfor Suite Room face the strait. ${lines.join(" ")}`
 }
 
 function datesText() {

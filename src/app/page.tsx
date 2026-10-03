@@ -24,7 +24,7 @@ const notes = [
   },
   {
     title: "The house",
-    body: "Eight room types. Queen Double and King Double face the street. Evenings end on the quay, when the strait goes dark.",
+    body: "Eight room types. Five face the street and the rooftops. Deluxe Room, Suite Room, and Bosfor Suite Room face the water.",
   },
 ]
 
@@ -71,7 +71,7 @@ export default function HomePage() {
           <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">The house</p>
           <h2 className="mt-3 text-4xl md:text-5xl">A wooden house on the European shore</h2>
           <p className="mt-5 text-base leading-7 text-foreground/80">
-            Bosfor Hotels is a fictional house hotel on the Bosphorus in Istanbul — Bosfor for the strait, the Boğaz. The rooms look either into the garden or out across the water to the Asian hills. Queen Double and King Double face the street instead: buildings and rooftops, not the bay. The quay is private; Bebek village is a short walk along Cevdet Paşa.
+            Bosfor Hotels is a fictional house hotel on the Bosphorus in Istanbul — Bosfor for the strait, the Boğaz. Deluxe Room, Suite Room, and Bosfor Suite Room look across the water to the Asian hills. The other five rooms face buildings, a side street, or rooftops. The quay is private; Bebek village is a short walk along Cevdet Paşa.
           </p>
           <p className="mt-4 text-base leading-7 text-foreground/80">
             There is tea on the terrace in the morning, brass lamps after dark, and eight room types. That is the whole of it.

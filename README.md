@@ -27,15 +27,15 @@ Open [http://127.0.0.1:43123/HotelManagment-WebAPI/](http://127.0.0.1:43123/Hote
 
 ## Rooms
 
-Rates are per room, per night, in euros, taxes included. Queen Double and King Double face the street and cost less than the rooms on the water. The other six rooms are unchanged.
+Rates are per room, per night, in euros, taxes included. Only Deluxe Room, Suite Room, and Bosfor Suite Room face the water.
 
 | Room | View | Nightly |
 | --- | --- | --- |
-| Standard | Garden | €220 |
-| Queen Double | Side street | €250 |
-| Queen | Bebek bay | €295 |
-| King Double | Rooftops | €340 |
-| King | Bosphorus balcony | €385 |
-| Deluxe | Wide Bosphorus balcony | €510 |
-| Suite | Strait, two rooms | €780 |
-| Bosfor Suite | Private water terrace | €1,250 |
+| Standard Room | City rooftops | €220 |
+| Queen Double Room | Side street | €250 |
+| Queen Room | Across the street | €295 |
+| King Double Room | Rooftops | €340 |
+| King Room | City buildings | €385 |
+| Deluxe Room | Wide Bosphorus balcony | €510 |
+| Suite Room | Strait, two rooms | €780 |
+| Bosfor Suite Room | Private water terrace | €1,250 |
