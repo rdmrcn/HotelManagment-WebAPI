@@ -50,8 +50,8 @@ export const rooms: Room[] = [
       "Wireless internet",
     ],
     images: photos("standard", [
-      "Compact garden bedroom with a double bed in cream linen, limewashed plaster, a brass lamp, and a sash window onto a fig tree and stone path.",
-      "The same garden room from the writing desk, looking toward the sash window, boxwood, and a corner of the double bed.",
+      "Compact garden bedroom with a tufted walnut headboard, cream hotel bedding, brass bedside lamps, and a sash window onto fig leaves and a stone path.",
+      "The same garden room from the writing desk, looking toward the sash window, boxwood, a bath doorway, and the double bed.",
     ]),
   },
   {
@@ -74,8 +74,8 @@ export const rooms: Room[] = [
       "Wireless internet",
     ],
     images: photos("queen", [
-      "Queen bedroom with rumpled oatmeal linen, sage curtains, a walnut writing desk, and casement windows looking along Bebek bay in afternoon light.",
-      "The same Queen room from the foot of the bed, looking toward the desk, cane chair, and bay windows with wooden houses and fishing boats.",
+      "Queen bedroom with a tall sand headboard, oatmeal linen, sage curtains, ceramic lamps, a walnut writing desk, and casement windows along Bebek bay in afternoon light.",
+      "The same Queen room from the writing desk, looking toward the tall headboard, cane chair, and bay windows with wooden houses and fishing boats.",
     ]),
   },
   {
@@ -98,8 +98,8 @@ export const rooms: Room[] = [
       "Wireless internet",
     ],
     images: photos("king", [
-      "Wide king bedroom with grey linen, an Iznik blue tile dado, and French doors open onto a balcony over the Bosphorus at morning, a ferry on the water.",
-      "The same King room seen from the balcony, looking in past a wrought-iron rail to the grey king bed, Iznik tiles, and a brass wall sconce.",
+      "Wide king bedroom with a charcoal velvet headboard, grey linen, an Iznik blue tile dado, a leather armchair, and French doors onto a Bosphorus balcony at morning, a ferry on the water.",
+      "The same King room seen from the balcony, looking in past a wrought-iron rail to the grey king bed, Iznik tiles, and leather chair.",
     ]),
   },
   {
@@ -124,8 +124,8 @@ export const rooms: Room[] = [
       "Wireless internet",
     ],
     images: photos("deluxe", [
-      "Deluxe bedroom with an ivory king bed, two cream armchairs, a marble table, and walnut shutters open to a wide balcony at Bosphorus sunset.",
-      "The same Deluxe lounge: two armchairs and a copper pot on marble, looking out through open shutters to the strait at sunset, the bed just in frame.",
+      "Deluxe bedroom with an ivory king bed, a walnut headboard, two cream armchairs, a marble table, and walnut shutters open to a wide balcony at Bosphorus sunset.",
+      "The same Deluxe lounge: two armchairs and a copper pot on marble, looking out through open shutters to the strait at sunset, the bed at the left edge.",
     ]),
   },
   {
@@ -151,8 +151,8 @@ export const rooms: Room[] = [
       "Wireless internet",
     ],
     images: photos("suite", [
-      "Evening sitting room with a cream sofa, a round tea table, and a carved walnut doorway into a separate bedroom above the Bosphorus.",
-      "The Suite bedroom at night, looking back through the carved doorway to the sitting room sofa and tea table, with the strait dark outside.",
+      "Evening sitting room with a cream sofa, a round tea table, and a carved walnut doorway into a separate king bedroom above the Bosphorus.",
+      "The Suite bedroom at night, looking back through the carved doorway to the sitting room sofa and tea table, with a marble bath glimpse and the strait dark outside.",
     ]),
   },
   {
@@ -178,7 +178,7 @@ export const rooms: Room[] = [
       "Wireless internet",
     ],
     images: photos("presidential", [
-      "Bosfor Suite sitting room at dusk: pale limestone fireplace, a dining table, a cream sofa, and terrace doors open to the Bosphorus.",
+      "Bosfor Suite sitting room at dusk: pale limestone fireplace, a dining table for four, a cream sofa, and terrace doors open to the Bosphorus.",
       "The private water terrace at dusk, looking back through walnut doors to the fireplace, dining table, and sofa of the Bosfor Suite.",
     ]),
   },
