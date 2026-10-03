@@ -55,6 +55,28 @@ export const rooms: Room[] = [
     ]),
   },
   {
+    slug: "queen-double",
+    name: "Queen Double",
+    nightlyRate: 250,
+    size: "32 m²",
+    bed: "Two queen beds",
+    view: "Side street",
+    summary: "Two queen beds on the city side, priced under the Queen.",
+    description:
+      "Queen Double is the cheaper city room. Two queen beds, a nightstand between them, warm white linen, and a window onto a side street of apartment buildings. No open water, no boats. The single Queen, one floor up, is the room that looks along the bay.",
+    amenities: [
+      "Two queen beds",
+      "Side-street view",
+      "Rain shower",
+      "Linen robes",
+      "Wireless internet",
+    ],
+    images: photos("queen-double", [
+      "Two queen beds with walnut headboards and a brass lamp between them, greige drapes open to a narrow street of apartment buildings.",
+      "The same Queen Double from the doorway, both queen beds in warm white linen, city buildings filling the window.",
+    ]),
+  },
+  {
     slug: "queen",
     name: "Queen",
     nightlyRate: 295,
@@ -76,6 +98,28 @@ export const rooms: Room[] = [
     images: photos("queen", [
       "Queen bedroom with a walnut panel headboard, warm white bedding, a sage pillow, a writing desk, and casement windows toward the wooden houses on Bebek bay.",
       "The same Queen room from the writing desk, looking across the queen bed and walnut headboard toward the Bebek bay windows.",
+    ]),
+  },
+  {
+    slug: "king-double",
+    name: "King Double",
+    nightlyRate: 340,
+    size: "42 m²",
+    bed: "Two king beds",
+    view: "Rooftops",
+    summary: "Two king beds facing the rooftops, priced under the King.",
+    description:
+      "King Double puts two wide king beds in one room, with walnut headboards and a lamp between them. The window looks over tiled rooftops and the buildings of the next street. It is the city room for four, and it costs less than the King, whose balcony is on the strait.",
+    amenities: [
+      "Two king beds",
+      "Rooftop view",
+      "Rain shower",
+      "Linen robes",
+      "Wireless internet",
+    ],
+    images: photos("king-double", [
+      "Two wide king beds with walnut headboards and warm white bedding, a window onto tiled rooftops and the next block of buildings.",
+      "The same King Double from the window side, both king beds visible, rooftops and apartment buildings outside.",
     ]),
   },
   {

@@ -52,7 +52,7 @@ export function StaySearch() {
         </button>
       </div>
       <p className="mt-3 text-sm text-muted-foreground">
-        Six rooms, from {formatMoney(lowestNightlyRate())} a night. Taxes included.
+        Eight rooms, from {formatMoney(lowestNightlyRate())} a night. Taxes included.
       </p>
       {error ? (
         <div className="mt-3">

@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/page-header"
 export const metadata: Metadata = {
   title: "Ask",
   description:
-    "Ask Bosfor Hotels about the six room prices, how a stay total is calculated, how to book, and where an account is saved.",
+    "Ask Bosfor Hotels about the eight room prices, how a stay total is calculated, how to book, and where an account is saved.",
 }
 
 export default function AskPage() {

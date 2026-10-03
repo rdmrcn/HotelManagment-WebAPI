@@ -36,8 +36,11 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-background/95 backdrop-blur">
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-5">
-        <Link href="/" className="font-serif text-2xl tracking-tight outline-none focus-visible:ring-3 focus-visible:ring-ring/50">
+      <div className="mx-auto flex h-20 w-full max-w-6xl items-center justify-between gap-4 px-5">
+        <Link
+          href="/"
+          className="font-serif text-[1.85rem] leading-none tracking-tight whitespace-nowrap outline-none focus-visible:ring-3 focus-visible:ring-ring/50 sm:text-4xl"
+        >
           Bosfor Hotels
         </Link>
         <nav className="hidden items-center gap-6 md:flex" aria-label="Primary">
@@ -80,7 +83,7 @@ export function SiteHeader() {
           </SheetTrigger>
           <SheetContent side="right" className="bg-background">
             <SheetHeader>
-              <SheetTitle className="font-serif text-2xl">Bosfor Hotels</SheetTitle>
+              <SheetTitle className="font-serif text-3xl">Bosfor Hotels</SheetTitle>
             </SheetHeader>
             <nav className="flex flex-col gap-1 px-4" aria-label="Mobile">
               {links.map((link) => (
