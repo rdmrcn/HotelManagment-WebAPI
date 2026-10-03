@@ -11,15 +11,17 @@ export type AssistantReply = {
 
 const helpText = [
   "I can help with four things.",
-  "I can list the six rooms and their nightly prices.",
+  "I can list the eight rooms and their nightly prices.",
   "I can explain how to choose dates and how the stay total is calculated.",
   "I can explain how to register, sign in, and confirm a booking.",
   "I can tell you that accounts and bookings stay in this browser.",
 ].join(" ")
 
 function roomsText() {
-  const lines = rooms.map((room) => `${room.name}, ${formatMoney(room.nightlyRate)} a night.`)
-  return `Bosfor Hotels has six room types. Each rate is per room, per night, and taxes are included. ${lines.join(" ")}`
+  const lines = rooms.map(
+    (room) => `${room.name} (${room.view}), ${formatMoney(room.nightlyRate)} a night.`,
+  )
+  return `Bosfor Hotels has eight room types. Each rate is per room, per night, and taxes are included. Queen Double and King Double face the street and cost less than the rooms on the water. ${lines.join(" ")}`
 }
 
 function datesText() {
@@ -66,6 +68,8 @@ const patterns: Record<AssistantTopic, RegExp[]> = {
     /\bstandard\b/,
     /\bqueen\b/,
     /\bking\b/,
+    /\bdouble\b/,
+    /\bcity\b/,
     /\bdeluxe\b/,
     /\bsuites?\b/,
     /\bpresidential\b/,

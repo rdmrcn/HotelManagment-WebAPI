@@ -171,7 +171,7 @@ export function BookingDesk() {
         </section>
       </div>
 
-      <aside className="h-fit rounded-2xl bg-card p-5 ring-1 ring-foreground/10 lg:sticky lg:top-24">
+      <aside className="h-fit rounded-2xl bg-card p-5 ring-1 ring-foreground/10 lg:sticky lg:top-28">
         <h2 className="text-2xl">Stay price</h2>
         <div className="mt-4 grid gap-2 text-sm leading-6" aria-live="polite">
           <p>{room ? room.name : "No room selected"}</p>

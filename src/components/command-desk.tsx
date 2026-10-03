@@ -75,7 +75,7 @@ export function CommandDesk() {
           </>
         ) : (
           <p className="text-base leading-7 text-muted-foreground">
-            Ask about the six rooms and their prices, how dates turn into a stay total, how to register and confirm, or where an account is kept.
+            Ask about the eight rooms and their prices, how dates turn into a stay total, how to register and confirm, or where an account is kept.
           </p>
         )}
       </div>

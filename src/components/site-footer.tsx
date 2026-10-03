@@ -17,7 +17,7 @@ export function SiteFooter() {
         <div>
           <p className="font-serif text-2xl">Bosfor Hotels</p>
           <p className="mt-3 max-w-sm text-sm leading-6 text-muted-foreground">
-            A fictional house hotel on the Bosphorus in Istanbul, with six rooms on the Bebek waterfront. Breakfast on the terrace, and a quay that stays quiet after dark.
+            A fictional house hotel on the Bosphorus in Istanbul, with eight rooms in Bebek. Breakfast on the terrace, and a quay that stays quiet after dark.
           </p>
         </div>
         <div>

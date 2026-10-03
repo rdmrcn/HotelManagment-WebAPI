@@ -10,7 +10,7 @@ import { cn } from "cn"
 export const metadata = {
   title: { absolute: "Bosfor Hotels · A house on the Bosphorus" },
   description:
-    "Bosfor Hotels is a fictional house hotel on the Bosphorus in Istanbul, on the Bebek waterfront. Six rooms, terrace breakfast, and a private quay on the strait.",
+    "Bosfor Hotels is a fictional house hotel on the Bosphorus in Istanbul, on the Bebek waterfront. Eight rooms, terrace breakfast, and a private quay on the strait.",
 }
 
 const notes = [
@@ -24,7 +24,7 @@ const notes = [
   },
   {
     title: "The house",
-    body: "Six room types on the water, no conference floor. Evenings end on the quay, when the strait goes dark.",
+    body: "Eight room types. Queen Double and King Double face the street. Evenings end on the quay, when the strait goes dark.",
   },
 ]
 
@@ -32,7 +32,7 @@ export default function HomePage() {
   return (
     <>
       <section className="relative">
-        <div className="relative min-h-[78vh] md:min-h-[calc(100vh-4rem)]">
+        <div className="relative min-h-[78vh] md:min-h-[calc(100vh-5rem)]">
           <Image
             src={withBasePath("/images/hero-bosphorus.jpg")}
             alt="Wooden waterfront yalı with cream shutters and a stone quay on the Bosphorus at dusk."
@@ -42,11 +42,13 @@ export default function HomePage() {
             sizes="100vw"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#071422]/80 via-[#071422]/35 to-[#071422]/20" />
-          <div className="relative mx-auto flex min-h-[78vh] w-full max-w-6xl flex-col justify-end px-5 pb-28 md:min-h-[calc(100vh-4rem)] md:pb-32">
+          <div className="relative mx-auto flex min-h-[78vh] w-full max-w-6xl flex-col justify-end px-5 pb-28 md:min-h-[calc(100vh-5rem)] md:pb-32">
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-white/80">Bebek, Istanbul</p>
-            <h1 className="mt-3 max-w-3xl text-6xl text-white md:text-8xl">Bosfor Hotels</h1>
+            <h1 className="mt-3 max-w-5xl text-7xl leading-[0.88] text-white sm:text-8xl md:text-9xl">
+              Bosfor Hotels
+            </h1>
             <p className="mt-4 max-w-xl text-lg leading-8 text-white/90">
-              Six rooms on the Bosphorus. Breakfast facing the strait, walnut shutters open to the water, and a house that stays quiet in the afternoon.
+              Eight rooms in Bebek. Breakfast facing the strait, walnut shutters open to the water, and a house that stays quiet in the afternoon.
             </p>
           </div>
         </div>
@@ -69,10 +71,10 @@ export default function HomePage() {
           <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">The house</p>
           <h2 className="mt-3 text-4xl md:text-5xl">A wooden house on the European shore</h2>
           <p className="mt-5 text-base leading-7 text-foreground/80">
-            Bosfor Hotels is a fictional house hotel on the Bosphorus in Istanbul — Bosfor for the strait, the Boğaz. The rooms look either into the garden or out across the water to the Asian hills. The quay is private; Bebek village is a short walk along Cevdet Paşa.
+            Bosfor Hotels is a fictional house hotel on the Bosphorus in Istanbul — Bosfor for the strait, the Boğaz. The rooms look either into the garden or out across the water to the Asian hills. Queen Double and King Double face the street instead: buildings and rooftops, not the bay. The quay is private; Bebek village is a short walk along Cevdet Paşa.
           </p>
           <p className="mt-4 text-base leading-7 text-foreground/80">
-            There is tea on the terrace in the morning, brass lamps after dark, and six room types. That is the whole of it.
+            There is tea on the terrace in the morning, brass lamps after dark, and eight room types. That is the whole of it.
           </p>
         </div>
       </section>
@@ -81,13 +83,13 @@ export default function HomePage() {
         <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div className="max-w-xl">
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Rooms</p>
-            <h2 className="mt-3 text-4xl">Six ways to stay</h2>
+            <h2 className="mt-3 text-4xl">Eight ways to stay</h2>
           </div>
           <Link href="/rooms" className={cn(buttonVariants({ variant: "outline" }), "h-11 rounded-full px-5")}>
             All rooms
           </Link>
         </div>
-        <div className="mt-10 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-10 lg:grid-cols-3">
           {rooms.map((room) => (
             <RoomCard key={room.slug} room={room} heading="h3" coverOnly />
           ))}
@@ -119,7 +121,7 @@ export default function HomePage() {
             <div className="relative flex min-h-[420px] flex-col justify-end p-6 md:p-12">
               <h2 className="max-w-lg text-4xl text-white md:text-5xl">Come for the strait, stay for the quiet</h2>
               <p className="mt-4 max-w-md text-base leading-7 text-white/90">
-                Choose your dates, compare the six rooms, and keep the reservation in this browser.
+                Choose your dates, compare the eight rooms, and keep the reservation in this browser.
               </p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <Link
