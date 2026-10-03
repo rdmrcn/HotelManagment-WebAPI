@@ -87,13 +87,13 @@ export const rooms: Room[] = [
     view: "Bosphorus balcony",
     summary: "A king bed and French doors onto a balcony over the strait.",
     description:
-      "The King room opens through carved walnut doors onto a narrow balcony. The bed is a king in stone-colored linen, with an Iznik-tile dado and enough floor to leave the doors open. Morning light arrives across the water before the ferries do.",
+      "The King room opens through glass doors onto a balcony over the strait. The bed is a wide king in warm white linen, with a taupe headboard and a charcoal armchair by the glass. Morning light arrives across the water before the ferries do.",
     amenities: [
       "King bed",
       "Private balcony",
       "Bosphorus view",
       "Rain shower",
-      "Iznik-tile accent",
+      "Charcoal armchair",
       "Linen robes",
       "Wireless internet",
     ],
@@ -112,7 +112,7 @@ export const rooms: Room[] = [
     summary:
       "The king room with space to sit: two linen armchairs, a wider balcony, and a long afternoon on the strait.",
     description:
-      "Deluxe keeps the king bed and adds a lounge corner. Two cream armchairs, a small marble table, and a balcony wide enough for both of you. The shutters fold all the way back, and the Iznik tiles catch the last of the light.",
+      "Deluxe keeps the king bed and adds a lounge corner. Two cream armchairs, a small marble table, and a balcony wide enough for both of you. The glass folds all the way back, and the last light sits on the water.",
     amenities: [
       "King bed",
       "Lounge seating",
