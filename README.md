@@ -8,7 +8,7 @@ Public site: [https://rdmrcn.github.io/HotelManagment-WebAPI/](https://rdmrcn.gi
 
 Also on the portfolio: [https://reha-demircan-portfolio.vercel.app/](https://reha-demircan-portfolio.vercel.app/)
 
-The Ask page answers a short list of commands: the eight nightly prices, how a stay total is calculated, how to register and confirm a booking, and the fact that accounts and bookings stay in this browser. It does not call an external service.
+Ask is a concierge conversation, on its own page and from the button on every other page. It answers in English about the rooms, prices, views, dates, breakfast, check-in, and how to register, sign in, book, and find a saved stay. Each reply includes a link to the next page. It does not call an external service, and it does not take payment.
 
 ## Run locally
 
