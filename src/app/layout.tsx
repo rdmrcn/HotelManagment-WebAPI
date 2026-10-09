@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { Cormorant_Garamond, Source_Sans_3 } from "next/font/google"
 import { AuthProvider } from "@/components/auth-provider"
+import { ChatLauncher } from "@/components/chat-launcher"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import "./globals.css"
@@ -43,6 +44,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             {children}
           </main>
           <SiteFooter />
+          <ChatLauncher />
         </AuthProvider>
       </body>
     </html>

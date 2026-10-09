@@ -134,7 +134,7 @@ export default function HomePage() {
                   href="/ask"
                   className="inline-flex h-11 w-fit items-center rounded-full border border-white/40 px-5 text-sm font-medium text-white"
                 >
-                  Ask about a stay
+                  Ask the concierge
                 </Link>
               </div>
             </div>

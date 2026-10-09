@@ -24,6 +24,11 @@ export function BookingDesk() {
   const [checkIn, setCheckIn] = useState(initialCheckIn)
   const [checkOut, setCheckOut] = useState(initialCheckOut)
   const [roomSlug, setRoomSlug] = useState(getRoom(initialRoom)?.slug ?? "")
+
+  useEffect(() => {
+    const next = getRoom(initialRoom)?.slug
+    if (next) setRoomSlug(next)
+  }, [initialRoom])
   const [attempted, setAttempted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
