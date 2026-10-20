@@ -1,6 +1,6 @@
 "use client"
 
-import { CalendarClock, CheckCircle2, Lock } from "lucide-react"
+import { CalendarClock, CheckCircle2, CreditCard, Lock } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -10,15 +10,18 @@ import { DateRangePicker } from "@/components/date-range-picker"
 import { LeftBadge } from "@/components/left-badge"
 import { Notice } from "@/components/notice"
 import { SideBadge } from "@/components/side-badge"
-import { Button, buttonVariants } from "@/components/ui/button"
+import { PaymentFields, cardFieldId, demoCard, emptyCard } from "@/components/payment-fields"
+import { buttonVariants } from "@/components/ui/button"
 import { nextAvailableStay, stayAvailability } from "@/lib/availability"
 import { formatMoney, formatStayDate, nightLabel } from "@/lib/format"
 import { getRoom, roomCover, rooms, type Room } from "@/lib/rooms"
 import { authPath, bookPath } from "@/lib/search"
+import { validateCard, type CardErrors, type CardField, type CardInput } from "@/lib/payment"
 import { nightsBetween, quoteStay } from "@/lib/stay"
-import type { Booking } from "@/lib/storage"
 import { useToday } from "@/lib/use-today"
 import { cn } from "cn"
+
+const MAX_SLEEPS = Math.max(...rooms.map((item) => item.sleeps))
 
 export function BookingDesk() {
   const searchParams = useSearchParams()
@@ -30,22 +33,34 @@ function BookingForm() {
   const searchParams = useSearchParams()
   const initialRoom = searchParams.get("room") ?? ""
   const today = useToday()
-  const { status, guest, allBookings, addBooking } = useAuth()
+  const { status, guest, allBookings, payForBooking } = useAuth()
   const [checkIn, setCheckIn] = useState(searchParams.get("checkIn") ?? "")
   const [checkOut, setCheckOut] = useState(searchParams.get("checkOut") ?? "")
   const [roomSlug, setRoomSlug] = useState(getRoom(initialRoom)?.slug ?? "")
   const [hideSoldOut, setHideSoldOut] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
-  const [confirmation, setConfirmation] = useState<Booking | null>(null)
+  const [guestCount, setGuestCount] = useState(2)
+  const [card, setCard] = useState<CardInput>(emptyCard)
+  const [cardErrors, setCardErrors] = useState<CardErrors>({})
+  const [paymentError, setPaymentError] = useState<string | null>(null)
+  const [paidRef, setPaidRef] = useState<string | null>(null)
   const formErrorRef = useRef<HTMLDivElement>(null)
+
+  const paymentErrorRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (formError) formErrorRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" })
   }, [formError])
 
+  useEffect(() => {
+    if (paymentError) paymentErrorRef.current?.scrollIntoView({ block: "center", behavior: "smooth" })
+  }, [paymentError])
+
   const ready = today !== "" && status === "ready"
   const room = getRoom(roomSlug)
+  const maxGuests = room?.sleeps ?? MAX_SLEEPS
+  const guests = Math.min(guestCount, maxGuests)
   const hasDates = checkIn !== "" && checkOut !== ""
   const dateQuote = quoteStay(room?.nightlyRate ?? 0, checkIn, checkOut, today || undefined)
   const dateError = ready && hasDates && !dateQuote.ok ? dateQuote.error : null
@@ -74,12 +89,19 @@ function BookingForm() {
   )
   const allSoldOut = datesValid && !outOfWindow && perRoom.every(({ result }) => result && !result.ok)
 
+  function updateCard(field: CardField, value: string) {
+    setCard((current) => ({ ...current, [field]: value }))
+    setCardErrors((current) => ({ ...current, [field]: undefined }))
+    setPaymentError(null)
+  }
+
   async function confirmStay() {
     if (submitting) return
     setFormError(null)
+    setPaymentError(null)
 
     if (!ready) {
-      setFormError("Still checking this browser. Confirm again in a moment.")
+      setFormError("Still checking this browser. Pay again in a moment.")
       return
     }
     if (!dateQuote.ok) {
@@ -99,38 +121,45 @@ function BookingForm() {
       return
     }
 
-    setSubmitting(true)
-    await new Promise((resolve) => setTimeout(resolve, 350))
-    const saved = addBooking({ roomSlug: room.slug, checkIn, checkOut })
-    setSubmitting(false)
-    if (!saved.ok) {
-      setFormError(saved.error)
+    const errors = validateCard(card)
+    const firstInvalid = (["name", "number", "expiry", "cvc"] as const).find((field) => errors[field])
+    if (firstInvalid) {
+      setCardErrors(errors)
+      document.getElementById(cardFieldId(firstInvalid))?.focus()
       return
     }
-    setConfirmation(saved.booking)
+
+    setSubmitting(true)
+    await new Promise((resolve) => setTimeout(resolve, 900))
+    const result = await payForBooking({ roomSlug: room.slug, checkIn, checkOut, guests, card })
+    setSubmitting(false)
+    if (!result.ok) {
+      setCard((current) => ({ ...current, cvc: "" }))
+      if (result.code === "unavailable") {
+        setFormError(result.error)
+      } else {
+        if (result.fields) setCardErrors(result.fields)
+        setPaymentError(result.error)
+      }
+      return
+    }
+    setCard(emptyCard)
+    setPaidRef(result.booking.confirmationCode)
+    router.push(`/confirmation?ref=${encodeURIComponent(result.booking.confirmationCode)}`)
   }
 
-  if (confirmation) {
+  if (paidRef) {
     return (
-      <Confirmation
-        booking={confirmation}
-        room={getRoom(confirmation.roomSlug)}
-        guestName={guest?.name ?? "Guest"}
-        onAnother={() => {
-          setConfirmation(null)
-          setCheckIn("")
-          setCheckOut("")
-          setRoomSlug("")
-        }}
-      />
+      <div role="status" className="mx-auto max-w-xl rounded-3xl bg-card p-8 text-center ring-1 ring-foreground/10">
+        <CheckCircle2 className="mx-auto size-8 text-primary" aria-hidden />
+        <h2 className="mt-3 text-3xl">Payment received</h2>
+        <p className="mt-2 text-sm text-muted-foreground">Opening confirmation {paidRef}…</p>
+      </div>
     )
   }
 
-  const confirmLabel = submitting
-    ? "Saving your stay…"
-    : guest || !ready
-      ? "Confirm booking"
-      : "Sign in to confirm"
+  const payLabel = quote?.ok && !selectedBlocked ? `Pay ${formatMoney(quote.total)} and confirm` : "Pay and confirm"
+  const confirmLabel = submitting ? "Processing payment…" : guest || !ready ? payLabel : "Sign in to pay"
 
   return (
     <form
@@ -163,6 +192,28 @@ function BookingForm() {
             {outOfWindow && windowText && !windowText.ok ? <Notice tone="info">{windowText.message}</Notice> : null}
             {allSoldOut ? (
               <Notice>Every room type is sold out for at least one night in this stay. Try nearby dates.</Notice>
+            ) : null}
+          </div>
+          <div className="grid max-w-xs gap-2">
+            <label htmlFor="book-guests" className="text-sm leading-none font-medium">
+              Guests
+            </label>
+            <select
+              id="book-guests"
+              value={guests}
+              onChange={(event) => setGuestCount(Number(event.target.value))}
+              className="h-12 w-full rounded-lg border border-input bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+            >
+              {Array.from({ length: maxGuests }, (_, index) => index + 1).map((count) => (
+                <option key={count} value={count}>
+                  {count === 1 ? "1 guest" : `${count} guests`}
+                </option>
+              ))}
+            </select>
+            {room ? (
+              <p className="text-xs text-muted-foreground">
+                {room.name} sleeps up to {room.sleeps}.
+              </p>
             ) : null}
           </div>
         </section>
@@ -207,6 +258,50 @@ function BookingForm() {
             ))}
           </ul>
         </section>
+
+        <section aria-labelledby="payment-heading" className="grid max-w-xl gap-4">
+          <h2 id="payment-heading" className="text-2xl">
+            <span className="mr-2 text-primary">3.</span>Payment
+          </h2>
+          {!ready ? (
+            <div className="h-64 animate-pulse rounded-2xl bg-muted" role="status">
+              <span className="sr-only">Checking this browser for a saved account…</span>
+            </div>
+          ) : guest ? (
+            <>
+              <PaymentFields
+                card={card}
+                errors={cardErrors}
+                disabled={submitting}
+                onChange={updateCard}
+                onFillDemo={() => {
+                  setCard(demoCard(guest.name))
+                  setCardErrors({})
+                  setPaymentError(null)
+                }}
+              />
+              <div ref={paymentErrorRef} aria-live="assertive">
+                {paymentError ? <Notice>{paymentError}</Notice> : null}
+              </div>
+            </>
+          ) : (
+            <div className="rounded-2xl bg-card p-5 ring-1 ring-foreground/10">
+              <p className="flex items-center gap-2 font-medium">
+                <CreditCard className="size-4 text-primary" aria-hidden /> Sign in to pay
+              </p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                Demo checkout. No real charge. Use 4242 4242 4242 4242. You will sign in first, then come back to this
+                page with your dates and room.
+              </p>
+              <Link
+                href={authPath("/sign-in", returnTo)}
+                className={cn(buttonVariants(), "mt-4 h-11 rounded-full px-5")}
+              >
+                Sign in to continue
+              </Link>
+            </div>
+          )}
+        </section>
       </div>
 
       <aside className="h-fit rounded-2xl bg-card p-5 ring-1 ring-foreground/10 lg:sticky lg:top-28" aria-labelledby="summary-heading">
@@ -236,6 +331,10 @@ function BookingForm() {
           <div className="flex justify-between gap-4">
             <dt className="text-muted-foreground">Check-out</dt>
             <dd>{checkOut ? formatStayDate(checkOut) : "—"}</dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-muted-foreground">Guests</dt>
+            <dd>{guests}</dd>
           </div>
           {quote?.ok && !selectedBlocked ? (
             <>
@@ -307,7 +406,7 @@ function BookingForm() {
           className={cn(buttonVariants(), "mt-5 hidden h-12 w-full rounded-full text-base lg:inline-flex")}
           disabled={submitting || Boolean(selectedBlocked)}
         >
-          {guest || !ready ? null : <Lock className="mr-1.5 size-4" aria-hidden />}
+          {guest || !ready ? <Lock className="mr-1.5 size-4" aria-hidden /> : null}
           {confirmLabel}
         </button>
         {formError ? (
@@ -316,7 +415,8 @@ function BookingForm() {
           </div>
         ) : null}
         <p className="mt-3 text-xs leading-5 text-muted-foreground">
-          No payment is taken. Bosfor Hotels is fictional, and the reservation stays in this browser.
+          Demo checkout. No real charge. Use 4242 4242 4242 4242. Bosfor Hotels is fictional, and the booking stays in this
+          browser. The room is held only after the payment goes through.
         </p>
       </aside>
 
@@ -334,7 +434,7 @@ function BookingForm() {
             className={cn(buttonVariants(), "h-12 shrink-0 rounded-full px-6 text-base")}
             disabled={submitting || Boolean(selectedBlocked)}
           >
-            {confirmLabel}
+            {submitting ? "Paying…" : guest || !ready ? "Pay now" : "Sign in to pay"}
           </button>
         </div>
       </div>
@@ -420,59 +520,5 @@ function RoomOption({
         {total}
       </span>
     </button>
-  )
-}
-
-function Confirmation({
-  booking,
-  room,
-  guestName,
-  onAnother,
-}: {
-  booking: Booking
-  room: Room | undefined
-  guestName: string
-  onAnother: () => void
-}) {
-  return (
-    <div className="mx-auto max-w-xl overflow-hidden rounded-3xl bg-card ring-1 ring-foreground/10">
-      {room ? (
-        <div className="relative aspect-[16/8] bg-muted">
-          <Image src={roomCover(room).src} alt="" fill className="object-cover" sizes="576px" priority />
-        </div>
-      ) : null}
-      <div className="p-6 md:p-8">
-        <p className="flex items-center gap-2 text-xs font-medium tracking-[0.18em] text-primary uppercase">
-          <CheckCircle2 className="size-4" aria-hidden /> Confirmed
-        </p>
-        <h2 className="mt-3 text-4xl">{booking.confirmationCode}</h2>
-        <p className="mt-4 text-base leading-7">
-          {guestName}, your {room?.name ?? "room"} is held from {formatStayDate(booking.checkIn)} to{" "}
-          {formatStayDate(booking.checkOut)}. Those nights now count against the calendar in this browser.
-        </p>
-        <dl className="mt-6 grid gap-3 text-sm">
-          <div className="flex justify-between gap-4">
-            <dt className="text-muted-foreground">Nights</dt>
-            <dd>{nightLabel(booking.nights)}</dd>
-          </div>
-          <div className="flex justify-between gap-4">
-            <dt className="text-muted-foreground">Nightly rate</dt>
-            <dd>{formatMoney(booking.nightlyRate)}</dd>
-          </div>
-          <div className="flex justify-between gap-4 border-t border-border pt-3 text-base">
-            <dt>Stay total</dt>
-            <dd>{formatMoney(booking.total)}</dd>
-          </div>
-        </dl>
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <Link href="/account" className={cn(buttonVariants(), "h-11 rounded-full px-5")}>
-            View your booking
-          </Link>
-          <Button type="button" variant="outline" className="h-11 rounded-full px-5" onClick={onAnother}>
-            Reserve another stay
-          </Button>
-        </div>
-      </div>
-    </div>
   )
 }

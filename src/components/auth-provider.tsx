@@ -1,15 +1,17 @@
 "use client"
 
 import { createContext, useContext, useMemo, useSyncExternalStore } from "react"
+import type { CardInput } from "@/lib/payment"
 import {
   authenticateGuest,
   cancelBooking,
+  payAndBook,
   readAuthState,
-  saveBooking,
   signOutGuest,
   storageKeys,
   type ActionFailure,
   type Booking,
+  type CheckoutFailure,
   type PublicGuest,
 } from "@/lib/storage"
 
@@ -29,11 +31,13 @@ type AuthContextValue = Snapshot & {
   signIn: (input: { email: string; password: string; name?: string }) => Promise<AuthResult>
   register: (input: { email: string; password: string; name?: string }) => Promise<AuthResult>
   signOut: () => void
-  addBooking: (input: {
+  payForBooking: (input: {
     roomSlug: string
     checkIn: string
     checkOut: string
-  }) => { ok: true; booking: Booking } | ActionFailure
+    guests: number
+    card: CardInput
+  }) => Promise<{ ok: true; booking: Booking } | CheckoutFailure>
   removeBooking: (bookingId: string) => { ok: true } | ActionFailure
 }
 
@@ -110,9 +114,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signOutGuest()
         refresh()
       },
-      addBooking: (input) => {
-        if (!state.guest) return { ok: false, error: "Sign in again before confirming this stay." }
-        const result = saveBooking(state.guest.id, input)
+      payForBooking: async (input) => {
+        if (!state.guest) {
+          return { ok: false, code: "unavailable", error: "Sign in again before paying for this stay." }
+        }
+        const result = await payAndBook(state.guest.id, input)
         refresh()
         return result
       },

@@ -14,7 +14,7 @@ export default function AskPage() {
       <PageHeader
         eyebrow="Concierge"
         title="Ask the house"
-        lede="A short conversation about the rooms, the view, dates, and how to book. It stays in this browser. It does not check availability, take payment, or write the reservation for you."
+        lede="A short conversation about the rooms, the view, dates, and how to book. It stays in this browser. It does not take payment or write the reservation for you. That happens at demo checkout on the Book page."
       />
       <div
         id="ask"

@@ -115,7 +115,7 @@ export function ReservePanel({ room }: { room: Room }) {
       >
         {hasDates ? "Continue to booking" : "Check dates and book"}
       </button>
-      <p className="mt-3 text-center text-xs text-muted-foreground">No payment taken. This is a demo.</p>
+      <p className="mt-3 text-center text-xs text-muted-foreground">Demo checkout. No real charge.</p>
     </form>
   )
 }

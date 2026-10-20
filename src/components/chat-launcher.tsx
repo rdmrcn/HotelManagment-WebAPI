@@ -37,11 +37,11 @@ export function ChatLauncher() {
   return (
     <>
       {open ? (
-        <div className="fixed inset-0 z-50 bg-[#071422]/30" onClick={() => setOpen(false)} />
+        <div className="fixed inset-0 z-50 bg-[#071422]/30 print:hidden" onClick={() => setOpen(false)} />
       ) : null}
       <div
         className={cn(
-          "fixed z-[60] right-4 bottom-24 left-4 h-[min(34rem,calc(100dvh-8rem))] flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-2xl sm:left-auto sm:w-[24.5rem]",
+          "fixed z-[60] print:hidden right-4 bottom-24 left-4 h-[min(34rem,calc(100dvh-8rem))] flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-2xl sm:left-auto sm:w-[24.5rem]",
           open ? "flex" : "hidden",
         )}
       >
@@ -55,7 +55,7 @@ export function ChatLauncher() {
       <Button
         ref={triggerRef}
         type="button"
-        className={cn("fixed right-4 z-[60] h-14 rounded-full px-5 shadow-lg", onBook ? "bottom-24 lg:bottom-5" : "bottom-5")}
+        className={cn("fixed right-4 z-[60] h-14 print:hidden rounded-full px-5 shadow-lg", onBook ? "bottom-24 lg:bottom-5" : "bottom-5")}
         aria-expanded={open}
         aria-haspopup="dialog"
         onClick={() => setOpen((current) => !current)}

@@ -151,3 +151,13 @@
     background: #d4c4a0;
   }
 }
+
+@media print {
+  @page {
+    margin: 14mm;
+  }
+  html,
+  body {
+    background: #fff;
+  }
+}

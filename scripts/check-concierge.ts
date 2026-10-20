@@ -151,7 +151,8 @@ assert.match(outside.text, /I can help with/)
 assert.equal(/free on|pool is/.test(outside.text), false)
 
 const payment = expectIntent("Can I pay by card?", "fallback")
-assert.match(payment.text, /does not take payment/i)
+assert.match(payment.text, /does not take real payment/i)
+assert.match(payment.text, /4242 4242 4242 4242/)
 
 const availability = expectIntent("Is the Deluxe Room available tomorrow?", "availability")
 assert.match(availability.text, /how many are left/)

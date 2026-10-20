@@ -1,5 +1,6 @@
 import { stayAvailability } from "@/lib/availability"
 import { hashPassword, newSalt, randomId, verifyPassword } from "@/lib/password"
+import { processPayment, type CardInput, type Payment, type PaymentFailure } from "@/lib/payment"
 import { getRoom } from "@/lib/rooms"
 import { quoteStay } from "@/lib/stay"
 
@@ -46,9 +47,12 @@ export type Booking = {
   roomSlug: string
   checkIn: string
   checkOut: string
+  guests: number
   nights: number
   nightlyRate: number
   total: number
+  /** Null for stays saved before demo checkout existed. Holds the last four digits only. */
+  payment: Payment | null
   createdAt: string
 }
 
@@ -80,21 +84,53 @@ function isHashed(guest: StoredGuest): guest is Guest {
   return "passwordHash" in guest
 }
 
-function isBooking(value: unknown): value is Booking {
+function isPayment(value: unknown): value is Payment {
   if (!value || typeof value !== "object") return false
-  const booking = value as Record<string, unknown>
+  const payment = value as Record<string, unknown>
   return (
-    typeof booking.id === "string" &&
-    typeof booking.confirmationCode === "string" &&
-    typeof booking.guestId === "string" &&
-    typeof booking.roomSlug === "string" &&
-    typeof booking.checkIn === "string" &&
-    typeof booking.checkOut === "string" &&
-    typeof booking.nights === "number" &&
-    typeof booking.nightlyRate === "number" &&
-    typeof booking.total === "number" &&
-    typeof booking.createdAt === "string"
+    payment.status === "paid" &&
+    typeof payment.brand === "string" &&
+    typeof payment.last4 === "string" &&
+    /^\d{4}$/.test(payment.last4) &&
+    typeof payment.amount === "number" &&
+    payment.currency === "EUR" &&
+    typeof payment.paidAt === "string" &&
+    typeof payment.reference === "string"
   )
+}
+
+function toBooking(value: unknown): Booking | null {
+  if (!value || typeof value !== "object") return null
+  const booking = value as Record<string, unknown>
+  if (
+    typeof booking.id !== "string" ||
+    typeof booking.confirmationCode !== "string" ||
+    typeof booking.guestId !== "string" ||
+    typeof booking.roomSlug !== "string" ||
+    typeof booking.checkIn !== "string" ||
+    typeof booking.checkOut !== "string" ||
+    typeof booking.nights !== "number" ||
+    typeof booking.nightlyRate !== "number" ||
+    typeof booking.total !== "number" ||
+    typeof booking.createdAt !== "string"
+  ) {
+    return null
+  }
+  const guests = typeof booking.guests === "number" && booking.guests >= 1 ? Math.floor(booking.guests) : 1
+  return {
+    id: booking.id,
+    confirmationCode: booking.confirmationCode,
+    guestId: booking.guestId,
+    roomSlug: booking.roomSlug,
+    checkIn: booking.checkIn,
+    checkOut: booking.checkOut,
+    guests,
+    nights: booking.nights,
+    nightlyRate: booking.nightlyRate,
+    total: booking.total,
+    payment: isPayment(booking.payment) ? booking.payment : null,
+    createdAt: booking.createdAt,
+  }
 }
 
 function readRaw(key: string): { raw: string | null; error: string | null } {
@@ -135,7 +171,8 @@ function readBookings(): { bookings: Booking[]; error: string | null } {
   try {
     const parsed: unknown = JSON.parse(raw)
     if (!Array.isArray(parsed)) return { bookings: [], error: READ_ERROR }
-    return { bookings: parsed.filter(isBooking), error: null }
+    const bookings = parsed.map(toBooking).filter((booking): booking is Booking => booking !== null)
+    return { bookings, error: null }
   } catch {
     return { bookings: [], error: READ_ERROR }
   }
@@ -287,48 +324,92 @@ export function signOutGuest() {
   }
 }
 
-export function saveBooking(
-  guestId: string,
-  input: { roomSlug: string; checkIn: string; checkOut: string },
-  today?: string,
-): { ok: true; booking: Booking } | ActionFailure {
+export type BookingInput = { roomSlug: string; checkIn: string; checkOut: string; guests?: number }
+
+/** Everything that has to be true before a stay can be held, without writing anything. */
+function checkBooking(guestId: string, input: BookingInput, today?: string) {
   const guestsResult = readGuests()
   const bookingsResult = readBookings()
   const error = guestsResult.error ?? bookingsResult.error
-  if (error) return { ok: false, error }
+  if (error) return { ok: false as const, error }
   if (!guestsResult.guests.some((guest) => guest.id === guestId)) {
-    return { ok: false, error: "Sign in again before confirming this stay." }
+    return { ok: false as const, error: "Sign in again before confirming this stay." }
   }
 
   const room = getRoom(input.roomSlug)
-  if (!room) return { ok: false, error: "That room is not at the hotel." }
+  if (!room) return { ok: false as const, error: "That room is not at the hotel." }
+  const guests = input.guests ?? 1
+  if (!Number.isInteger(guests) || guests < 1 || guests > room.sleeps) {
+    return { ok: false as const, error: `${room.name} sleeps ${room.sleeps}. Choose between 1 and ${room.sleeps} guests.` }
+  }
   const quote = quoteStay(room.nightlyRate, input.checkIn, input.checkOut, today)
-  if (!quote.ok) return { ok: false, error: quote.error }
+  if (!quote.ok) return { ok: false as const, error: quote.error }
 
-  const availability = stayAvailability(
-    room.slug,
-    input.checkIn,
-    input.checkOut,
-    bookingsResult.bookings,
-    today,
-  )
-  if (!availability.ok) return { ok: false, error: availability.message }
+  const availability = stayAvailability(room.slug, input.checkIn, input.checkOut, bookingsResult.bookings, today)
+  if (!availability.ok) return { ok: false as const, error: availability.message }
+  return { ok: true as const, room, quote, guests, bookings: bookingsResult.bookings }
+}
+
+/** Holds the nights. Callers that take money go through `payAndBook` instead. */
+export function saveBooking(
+  guestId: string,
+  input: BookingInput,
+  today?: string,
+  payment: Payment | null = null,
+): { ok: true; booking: Booking } | ActionFailure {
+  const checked = checkBooking(guestId, input, today)
+  if (!checked.ok) return checked
 
   const booking: Booking = {
     id: randomId(),
     confirmationCode: confirmationCode(),
     guestId,
-    roomSlug: room.slug,
+    roomSlug: checked.room.slug,
     checkIn: input.checkIn,
     checkOut: input.checkOut,
-    nights: quote.nights,
-    nightlyRate: quote.nightlyRate,
-    total: quote.total,
+    guests: checked.guests,
+    nights: checked.quote.nights,
+    nightlyRate: checked.quote.nightlyRate,
+    total: checked.quote.total,
+    payment,
     createdAt: new Date().toISOString(),
   }
-  const saved = writeRaw(BOOKINGS_KEY, JSON.stringify([...bookingsResult.bookings, booking]))
+  const saved = writeRaw(BOOKINGS_KEY, JSON.stringify([...checked.bookings, booking]))
   if (!saved.ok) return saved
   return { ok: true, booking }
+}
+
+export type CheckoutFailure =
+  | PaymentFailure
+  | { ok: false; code: "unavailable"; error: string; field?: undefined; fields?: undefined }
+
+/**
+ * Demo checkout. The stay is checked first so nobody pays for nights that are gone, the card is run next,
+ * and the booking is written only if the payment succeeded. A failed payment writes nothing, so the
+ * calendar is untouched. The card number and CVC are never stored; the booking keeps the last four digits.
+ */
+export async function payAndBook(
+  guestId: string,
+  input: BookingInput & { card: CardInput },
+  today?: string,
+  now = new Date(),
+): Promise<{ ok: true; booking: Booking } | CheckoutFailure> {
+  const { card, ...stay } = input
+  const checked = checkBooking(guestId, stay, today)
+  if (!checked.ok) return { ok: false, code: "unavailable", error: checked.error }
+
+  const charge = await processPayment(card, checked.quote.total, now)
+  if (!charge.ok) return charge
+
+  const saved = saveBooking(guestId, stay, today, charge.payment)
+  if (!saved.ok) {
+    return {
+      ok: false,
+      code: "unavailable",
+      error: `${saved.error} Nothing was charged and no booking was made.`,
+    }
+  }
+  return saved
 }
 
 export function cancelBooking(guestId: string, bookingId: string): { ok: true } | ActionFailure {

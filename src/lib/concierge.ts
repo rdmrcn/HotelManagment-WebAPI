@@ -296,12 +296,12 @@ function helpReply(): ConciergeReply {
 function fallbackReply(text: string, mentioned: Room[] = []): ConciergeReply {
   const scope =
     "I can help with the rooms and nightly prices, sea view and street side, dates and the stay total, check-in, breakfast, and how to register, sign in, or see a saved stay."
-  const limits = "I cannot take payment or give an email address."
+  const limits = "I cannot take real payment or give an email address."
 
   if (/\b(pay|payment|card|credit|visa|mastercard|invoice|refund)\b/.test(text)) {
     return reply(
       "fallback",
-      `This site does not take payment or refunds. Confirming a stay only saves it in this browser. ${scope}`,
+      `This site does not take real payment or refunds. Booking uses a demo checkout: pay with the test card 4242 4242 4242 4242, any future expiry and any 3-digit CVC, and nothing is charged. The stay is saved only in this browser. ${scope}`,
       [
         { label: "Reserve a room", href: "/book" },
         { label: "Your account", href: "/account" },
@@ -510,7 +510,7 @@ export function answerGuest(input: string): ConciergeReply {
   if (isAccountRequired(text)) {
     return reply(
       "account-required",
-      "Yes. You need an account before you confirm, and any email with a password of 6 characters or more will do. Confirm booking asks you to sign in first, then the stay is saved in this browser.",
+      "Yes. You need an account before you confirm, and any email with a password of 6 characters or more will do. Pay asks you to sign in first, then the stay is saved in this browser once the demo payment goes through.",
       [
         { label: "Create an account", href: "/register" },
         { label: "Sign in", href: "/sign-in" },
@@ -596,7 +596,7 @@ export function answerGuest(input: string): ConciergeReply {
   if (isBook(text)) {
     return reply(
       "book",
-      "Open Book, choose your dates and a room, then press Confirm booking. You need an account in this browser before the stay can be saved.",
+      "Open Book, choose your dates and a room, then pay at the demo checkout with the test card 4242 4242 4242 4242 (any future expiry, any 3-digit CVC). No real charge is made. You need an account in this browser before you can pay.",
       [{ label: "Reserve a room", href: "/book" }],
     )
   }

@@ -1,6 +1,6 @@
 "use client"
 
-import { CalendarDays, LogOut, Trash2, UserRound } from "lucide-react"
+import { CalendarDays, FileText, LogOut, Trash2, UserRound } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
@@ -132,8 +132,21 @@ export function AccountPanel() {
                   </p>
                   <p className="mt-1 text-sm">
                     {formatMoney(booking.nightlyRate)} a night · {formatMoney(booking.total)} total
+                    <span className="text-muted-foreground">
+                      {" "}
+                      · {booking.guests === 1 ? "1 guest" : `${booking.guests} guests`}
+                    </span>
                   </p>
-                  <div className="mt-4">
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {booking.payment ? `Paid with ${booking.payment.brand} ending ${booking.payment.last4}` : "Payment not recorded"}
+                  </p>
+                  <div className="mt-4 flex flex-wrap items-center gap-2">
+                    <Link
+                      href={`/receipt?ref=${encodeURIComponent(booking.confirmationCode)}`}
+                      className={cn(buttonVariants({ variant: "outline" }), "h-9 rounded-full px-4")}
+                    >
+                      <FileText aria-hidden /> Receipt
+                    </Link>
                     {confirmingId === booking.id ? (
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-sm">Cancel this stay?</span>

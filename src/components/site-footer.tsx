@@ -23,7 +23,7 @@ export function SiteFooter() {
   const year = new Date().getFullYear()
 
   return (
-    <footer className="mt-auto bg-[#0b2238] text-white/80">
+    <footer className="mt-auto print:hidden bg-[#0b2238] text-white/80">
       <div className="mx-auto grid w-full max-w-6xl gap-10 px-5 pt-14 pb-10 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
         <div>
           <p className="font-serif text-4xl text-white">Bosfor Hotels</p>
@@ -64,7 +64,7 @@ export function SiteFooter() {
               Questions? <Link href="/ask" className="text-white underline underline-offset-4">Ask the concierge</Link>
             </li>
             <li>Rates are per room, per night, taxes included.</li>
-            <li>No payment is taken. Bookings are saved in your browser only.</li>
+            <li>Demo checkout, no real charge. Bookings are saved in your browser only.</li>
             <li>Cancel any saved stay from your account.</li>
           </ul>
         </div>

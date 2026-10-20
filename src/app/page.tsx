@@ -48,7 +48,7 @@ const trust = [
   { icon: Star, title: "4.8 out of 5", body: "Sample guest rating" },
   { icon: Coffee, title: "Terrace breakfast", body: "Served until 10:30" },
   { icon: Footprints, title: "4 minutes", body: "Downhill to the waterfront" },
-  { icon: Armchair, title: "No payment", body: "Book now, nothing is charged" },
+  { icon: Armchair, title: "Demo checkout", body: "Test card only, nothing is charged" },
 ]
 
 function fromRate(side: "bosphorus" | "city") {
