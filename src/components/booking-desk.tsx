@@ -260,7 +260,7 @@ function BookingForm() {
             <LeftBadge slug={selected.room.slug} checkIn={checkIn} checkOut={checkOut} />
           </div>
         ) : null}
-        {selectedBlocked ? (
+        {selectedBlocked && selectedBlocked.reason === "sold-out" ? (
           <div className="mt-3 grid gap-2">
             <Notice>{selectedBlocked.message}</Notice>
             {suggestion ? (
@@ -305,7 +305,7 @@ function BookingForm() {
         <button
           type="submit"
           className={cn(buttonVariants(), "mt-5 hidden h-12 w-full rounded-full text-base lg:inline-flex")}
-          disabled={submitting}
+          disabled={submitting || Boolean(selectedBlocked)}
         >
           {guest || !ready ? null : <Lock className="mr-1.5 size-4" aria-hidden />}
           {confirmLabel}
@@ -332,7 +332,7 @@ function BookingForm() {
           <button
             type="submit"
             className={cn(buttonVariants(), "h-12 shrink-0 rounded-full px-6 text-base")}
-            disabled={submitting}
+            disabled={submitting || Boolean(selectedBlocked)}
           >
             {confirmLabel}
           </button>
