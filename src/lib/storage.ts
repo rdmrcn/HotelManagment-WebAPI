@@ -331,4 +331,16 @@ export function saveBooking(
   return { ok: true, booking }
 }
 
+export function cancelBooking(guestId: string, bookingId: string): { ok: true } | ActionFailure {
+  const bookingsResult = readBookings()
+  if (bookingsResult.error) return { ok: false, error: bookingsResult.error }
+  const remaining = bookingsResult.bookings.filter(
+    (booking) => !(booking.id === bookingId && booking.guestId === guestId),
+  )
+  if (remaining.length === bookingsResult.bookings.length) {
+    return { ok: false, error: "That stay could not be found on this account." }
+  }
+  return writeRaw(BOOKINGS_KEY, JSON.stringify(remaining))
+}
+
 export const storageKeys = { guests: GUESTS_KEY, bookings: BOOKINGS_KEY, session: SESSION_KEY }

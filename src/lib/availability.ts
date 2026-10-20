@@ -83,7 +83,7 @@ function seeded(seed: number) {
   }
 }
 
-const dayLift = [0.03, -0.04, -0.06, -0.04, 0.04, 0.2, 0.26]
+const dayLift = [0.03, -0.04, -0.06, -0.04, 0.03, 0.15, 0.21]
 
 /** Cheaper rooms fill faster. The water rooms stay scarce and a little emptier. */
 const popularity: Record<string, number> = {
@@ -116,9 +116,9 @@ export function heldUnits(slug: string, date: string) {
   const weekend = isWeekendNight(date)
 
   let demand =
-    0.44 +
+    0.4 +
     dayLift[weekday(date)] +
-    (peak ? 0.24 : 0) +
+    (peak ? 0.26 : 0) +
     seasonLift(date) +
     (popularity[slug] ?? 0) +
     noise * 0.34

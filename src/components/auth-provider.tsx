@@ -3,6 +3,7 @@
 import { createContext, useContext, useMemo, useSyncExternalStore } from "react"
 import {
   authenticateGuest,
+  cancelBooking,
   readAuthState,
   saveBooking,
   signOutGuest,
@@ -33,6 +34,7 @@ type AuthContextValue = Snapshot & {
     checkIn: string
     checkOut: string
   }) => { ok: true; booking: Booking } | ActionFailure
+  removeBooking: (bookingId: string) => { ok: true } | ActionFailure
 }
 
 const serverSnapshot: Snapshot = {
@@ -111,6 +113,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       addBooking: (input) => {
         if (!state.guest) return { ok: false, error: "Sign in again before confirming this stay." }
         const result = saveBooking(state.guest.id, input)
+        refresh()
+        return result
+      },
+      removeBooking: (bookingId) => {
+        if (!state.guest) return { ok: false, error: "Sign in again to manage this stay." }
+        const result = cancelBooking(state.guest.id, bookingId)
         refresh()
         return result
       },

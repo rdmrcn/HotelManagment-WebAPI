@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from "vitest"
 import { addDays, todayISO } from "@/lib/stay"
 import {
   authenticateGuest,
+  cancelBooking,
   readAuthState,
   saveBooking,
   signOutGuest,
@@ -123,5 +124,44 @@ describe("saving a booking", () => {
     const checkIn = addDays(todayISO(), 3)
     const saved = saveBooking("missing", { roomSlug: "standard", checkIn, checkOut: addDays(checkIn, 1) })
     expect(saved.ok).toBe(false)
+  })
+})
+
+describe("cancelling a booking", () => {
+  it("removes only the guest's own stay", async () => {
+    const result = await authenticateGuest({ email: "ada@example.com", password: "first-pass", intent: "register" })
+    if (!result.ok) throw new Error("sign in failed")
+    // Search for a stay the seeded calendar can accept.
+    const today = todayISO()
+    let saved: ReturnType<typeof saveBooking> = { ok: false, error: "none" }
+    for (let offset = 2; offset < 40 && !saved.ok; offset += 1) {
+      const checkIn = addDays(today, offset)
+      saved = saveBooking(result.guest.id, { roomSlug: "standard", checkIn, checkOut: addDays(checkIn, 1) })
+    }
+    expect(saved.ok).toBe(true)
+    if (!saved.ok) return
+    expect(cancelBooking("someone-else", saved.booking.id).ok).toBe(false)
+    expect(readAuthState().bookings).toHaveLength(1)
+    expect(cancelBooking(result.guest.id, saved.booking.id).ok).toBe(true)
+    expect(readAuthState().bookings).toHaveLength(0)
+  })
+
+  it("never double-books a room once this browser has taken the last unit", async () => {
+    const result = await authenticateGuest({ email: "ada@example.com", password: "first-pass", intent: "register" })
+    if (!result.ok) throw new Error("sign in failed")
+    const today = todayISO()
+    const checkIn = addDays(today, 5)
+    const checkOut = addDays(checkIn, 1)
+    let guard = 0
+    while (guard < 20) {
+      guard += 1
+      const saved = saveBooking(result.guest.id, { roomSlug: "presidential", checkIn, checkOut })
+      if (!saved.ok) {
+        expect(saved.error).toMatch(/sold out/)
+        break
+      }
+    }
+    expect(guard).toBeLessThanOrEqual(3)
+    expect(readAuthState().allBookings.length).toBeLessThanOrEqual(2)
   })
 })

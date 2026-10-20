@@ -32,6 +32,7 @@ export function ChatLauncher() {
   }, [open])
 
   if (onAskPage(pathname)) return null
+  const onBook = pathname.replace(/\/+$/, "") === "/book"
 
   return (
     <>
@@ -54,7 +55,7 @@ export function ChatLauncher() {
       <Button
         ref={triggerRef}
         type="button"
-        className="fixed right-4 bottom-5 z-[60] h-14 rounded-full px-5 shadow-lg"
+        className={cn("fixed right-4 z-[60] h-14 rounded-full px-5 shadow-lg", onBook ? "bottom-24 lg:bottom-5" : "bottom-5")}
         aria-expanded={open}
         aria-haspopup="dialog"
         onClick={() => setOpen((current) => !current)}
