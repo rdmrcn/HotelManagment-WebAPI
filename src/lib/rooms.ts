@@ -5,8 +5,13 @@ export type RoomPhoto = {
   alt: string
 }
 
+export type RoomSide = "bosphorus" | "city"
+
 export type Room = {
   slug: string
+  side: RoomSide
+  /** How many rooms of this type the house has. */
+  units: number
   name: string
   nightlyRate: number
   size: string
@@ -32,6 +37,8 @@ export function roomCover(room: Room) {
 export const rooms: Room[] = [
   {
     slug: "standard",
+    side: "city",
+    units: 12,
     name: "Standard Room",
     nightlyRate: 220,
     size: "24 m²",
@@ -56,6 +63,8 @@ export const rooms: Room[] = [
   },
   {
     slug: "queen-double",
+    side: "city",
+    units: 6,
     name: "Queen Double Room",
     nightlyRate: 250,
     size: "32 m²",
@@ -78,6 +87,8 @@ export const rooms: Room[] = [
   },
   {
     slug: "queen",
+    side: "city",
+    units: 10,
     name: "Queen Room",
     nightlyRate: 295,
     size: "30 m²",
@@ -101,6 +112,8 @@ export const rooms: Room[] = [
   },
   {
     slug: "king-double",
+    side: "city",
+    units: 6,
     name: "King Double Room",
     nightlyRate: 340,
     size: "42 m²",
@@ -123,6 +136,8 @@ export const rooms: Room[] = [
   },
   {
     slug: "king",
+    side: "city",
+    units: 8,
     name: "King Room",
     nightlyRate: 385,
     size: "36 m²",
@@ -146,6 +161,8 @@ export const rooms: Room[] = [
   },
   {
     slug: "deluxe",
+    side: "bosphorus",
+    units: 5,
     name: "Deluxe Room",
     nightlyRate: 510,
     size: "46 m²",
@@ -172,6 +189,8 @@ export const rooms: Room[] = [
   },
   {
     slug: "suite",
+    side: "bosphorus",
+    units: 3,
     name: "Suite Room",
     nightlyRate: 780,
     size: "64 m²",
@@ -199,6 +218,8 @@ export const rooms: Room[] = [
   },
   {
     slug: "presidential",
+    side: "bosphorus",
+    units: 2,
     name: "Bosfor Suite Room",
     nightlyRate: 1250,
     size: "102 m²",
@@ -225,6 +246,23 @@ export const rooms: Room[] = [
     ]),
   },
 ]
+
+export const sideInfo: Record<RoomSide, { label: string; badge: string; short: string }> = {
+  bosphorus: {
+    label: "Bosphorus side",
+    badge: "Bosphorus view",
+    short: "Faces the water, downhill",
+  },
+  city: {
+    label: "City side",
+    badge: "City view",
+    short: "Faces the street, uphill",
+  },
+}
+
+export function roomsOnSide(side: RoomSide) {
+  return rooms.filter((room) => room.side === side)
+}
 
 export function getRoom(slug: string) {
   return rooms.find((room) => room.slug === slug)
