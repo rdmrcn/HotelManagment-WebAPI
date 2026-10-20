@@ -1,23 +1,19 @@
 "use client"
 
+import { Eye, EyeOff, ShieldAlert } from "lucide-react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
 import { useAuth } from "@/components/auth-provider"
 import { Notice } from "@/components/notice"
-import { PageHeader } from "@/components/page-header"
 import { Button, buttonVariants } from "@/components/ui/button"
-import { cn } from "cn"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { authPath, safeNext } from "@/lib/search"
-import { normalizeRegistration, normalizeSignIn, type FieldErrors } from "@/lib/validation"
+import { MIN_PASSWORD_LENGTH, normalizeRegistration, normalizeSignIn, type FieldErrors } from "@/lib/validation"
+import { cn } from "cn"
 
-export function AuthForm({
-  mode,
-}: {
-  mode: "register" | "sign-in"
-}) {
+export function AuthForm({ mode }: { mode: "register" | "sign-in" }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const nextPath = safeNext(searchParams.get("next") ?? "")
@@ -25,6 +21,7 @@ export function AuthForm({
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
   const [errors, setErrors] = useState<FieldErrors>({})
   const [formError, setFormError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -32,37 +29,21 @@ export function AuthForm({
   const isRegister = mode === "register"
 
   async function submitAccount() {
+    if (submitting) return
     setFormError(null)
 
-    if (isRegister) {
-      const parsed = normalizeRegistration({ name, email, password })
-      if (!parsed.ok) {
-        setErrors(parsed.errors)
-        return
-      }
-      setErrors({})
-      setSubmitting(true)
-      await new Promise((resolve) => setTimeout(resolve, 300))
-      const result = register(parsed.value)
-      setSubmitting(false)
-      if (!result.ok) {
-        if (result.field) setErrors({ [result.field]: result.error })
-        else setFormError(result.error)
-        return
-      }
-      router.push(nextPath)
-      return
-    }
-
-    const parsed = normalizeSignIn({ email, password })
+    const parsed = isRegister
+      ? normalizeRegistration({ name, email, password })
+      : normalizeSignIn({ email, password })
     if (!parsed.ok) {
       setErrors(parsed.errors)
       return
     }
     setErrors({})
     setSubmitting(true)
-    await new Promise((resolve) => setTimeout(resolve, 300))
-    const result = signIn(parsed.value)
+    const result = isRegister
+      ? await register({ ...parsed.value, name: "name" in parsed.value ? parsed.value.name : undefined })
+      : await signIn(parsed.value)
     setSubmitting(false)
     if (!result.ok) {
       if (result.field) setErrors({ [result.field]: result.error })
@@ -72,19 +53,25 @@ export function AuthForm({
     router.push(nextPath)
   }
 
+  if (status === "loading") {
+    return (
+      <div className="mx-auto w-full max-w-md" role="status" aria-live="polite">
+        <div className="h-[28rem] animate-pulse rounded-3xl bg-muted" />
+        <span className="sr-only">Checking this browser for a saved account…</span>
+      </div>
+    )
+  }
+
   if (guest) {
     return (
-      <div className="mx-auto max-w-xl">
-        <PageHeader
-          eyebrow="Account"
-          title="You are already signed in"
-          lede={`${guest.name} is the guest on this browser. Continue to the stay, or sign out to use a different name.`}
-        />
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <Link
-            href={nextPath}
-            className="inline-flex h-11 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground"
-          >
+      <div className="mx-auto w-full max-w-md rounded-3xl bg-card p-6 ring-1 ring-foreground/10 md:p-8">
+        <p className="text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase">Signed in</p>
+        <h1 className="mt-3 text-4xl">Welcome back, {guest.name}</h1>
+        <p className="mt-3 text-sm leading-6 text-muted-foreground">
+          {guest.email} is the guest on this browser. Continue, or sign out to use a different email.
+        </p>
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <Link href={nextPath} className={cn(buttonVariants(), "h-11 rounded-full px-5")}>
             Continue
           </Link>
           <Button type="button" variant="outline" className="h-11 rounded-full px-5" onClick={signOut}>
@@ -96,27 +83,34 @@ export function AuthForm({
   }
 
   return (
-    <div className="mx-auto grid max-w-xl gap-8">
-      <PageHeader
-        eyebrow={isRegister ? "Register" : "Sign in"}
-        title={isRegister ? "Create your guest account" : "Sign in to your stay"}
-        lede={
-          isRegister
-            ? "Name, email, and a password. They stay in this browser so you can see the booking later. Nothing is sent to a server."
-            : "Use the email and password you saved in this browser."
-        }
-      />
-      {status === "loading" ? (
-        <p role="status" className="text-sm text-muted-foreground">
-          Checking this browser for a saved account…
-        </p>
+    <div className="mx-auto w-full max-w-md rounded-3xl bg-card p-6 ring-1 ring-foreground/10 md:p-8">
+      <p className="text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase">
+        {isRegister ? "Register" : "Sign in"}
+      </p>
+      <h1 className="mt-3 text-4xl">{isRegister ? "Create your guest account" : "Sign in to your stay"}</h1>
+      <p className="mt-3 text-sm leading-6 text-muted-foreground">
+        {isRegister
+          ? "An email and a password is all it takes. Your details stay in this browser and are never sent anywhere."
+          : "Use any email and password. A new email creates the account for you; a known email needs the same password."}
+      </p>
+
+      <p className="mt-5 flex gap-2 rounded-xl bg-secondary px-3 py-2.5 text-sm leading-5 text-secondary-foreground">
+        <ShieldAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
+        <span>
+          <strong className="font-medium">Demo site.</strong> Do not use a real password. Anything you enter
+          is stored (hashed) only in this browser.
+        </span>
+      </p>
+
+      {storageError ? (
+        <div className="mt-5">
+          <Notice>{storageError}</Notice>
+        </div>
       ) : null}
-      {storageError ? <Notice>{storageError}</Notice> : null}
+
       <form
-        method="post"
-        action="#account"
         noValidate
-        className="grid gap-4"
+        className="mt-6 grid gap-4"
         onSubmit={(event) => {
           event.preventDefault()
           void submitAccount()
@@ -125,7 +119,7 @@ export function AuthForm({
         {isRegister ? (
           <Field
             id="name"
-            label="Name"
+            label="Name (optional)"
             autoComplete="name"
             value={name}
             error={errors.name}
@@ -139,7 +133,9 @@ export function AuthForm({
           id="email"
           label="Email"
           type="email"
+          inputMode="email"
           autoComplete="email"
+          placeholder="you@example.com"
           value={email}
           error={errors.email}
           onChange={(value) => {
@@ -150,33 +146,41 @@ export function AuthForm({
         <Field
           id="password"
           label="Password"
-          type="password"
+          type={showPassword ? "text" : "password"}
           autoComplete={isRegister ? "new-password" : "current-password"}
           value={password}
           error={errors.password}
+          hint={`At least ${MIN_PASSWORD_LENGTH} characters. Any password works on this demo.`}
           onChange={(value) => {
             setPassword(value)
             setErrors((current) => ({ ...current, password: undefined }))
           }}
-          hint={isRegister ? "At least 8 characters. Stored only in this browser." : undefined}
+          trailing={
+            <button
+              type="button"
+              onClick={() => setShowPassword((current) => !current)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-pressed={showPassword}
+              className="absolute top-1/2 right-2 grid size-9 -translate-y-1/2 place-items-center rounded-full text-muted-foreground outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50"
+            >
+              {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            </button>
+          }
         />
         {formError ? <Notice>{formError}</Notice> : null}
         <button
-          type="button"
-          className={cn(buttonVariants(), "h-11 rounded-full")}
+          type="submit"
+          className={cn(buttonVariants(), "mt-1 h-12 rounded-full text-base")}
           disabled={submitting || Boolean(storageError)}
-          onClick={() => {
-            void submitAccount()
-          }}
         >
-          {submitting ? "Saving…" : isRegister ? "Create account" : "Sign in"}
+          {submitting ? "One moment…" : isRegister ? "Create account" : "Sign in"}
         </button>
       </form>
-      <p className="text-sm text-muted-foreground">
-        {isRegister ? "Already registered in this browser? " : "No account in this browser yet? "}
+      <p className="mt-6 text-sm text-muted-foreground">
+        {isRegister ? "Already have an account here? " : "Prefer to add your name? "}
         <Link
           href={authPath(isRegister ? "/sign-in" : "/register", nextPath)}
-          className="font-medium text-primary"
+          className="font-medium text-primary underline-offset-4 hover:underline"
         >
           {isRegister ? "Sign in" : "Create an account"}
         </Link>
@@ -192,8 +196,9 @@ function Field({
   onChange,
   error,
   hint,
+  trailing,
   type = "text",
-  autoComplete,
+  ...rest
 }: {
   id: string
   label: string
@@ -201,23 +206,30 @@ function Field({
   onChange: (value: string) => void
   error?: string
   hint?: string
+  trailing?: React.ReactNode
   type?: string
   autoComplete?: string
+  placeholder?: string
+  inputMode?: "email"
 }) {
   const describedBy = error ? `${id}-error` : hint ? `${id}-hint` : undefined
   return (
     <div className="grid gap-2">
       <Label htmlFor={id}>{label}</Label>
-      <Input
-        id={id}
-        type={type}
-        value={value}
-        autoComplete={autoComplete}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={describedBy}
-        onChange={(event) => onChange(event.target.value)}
-        className="h-11 bg-background px-3 text-foreground"
-      />
+      <div className="relative">
+        <Input
+          id={id}
+          name={id}
+          type={type}
+          value={value}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={describedBy}
+          onChange={(event) => onChange(event.target.value)}
+          className={cn("h-12 bg-background px-3 text-foreground", trailing && "pr-12")}
+          {...rest}
+        />
+        {trailing}
+      </div>
       {hint && !error ? (
         <p id={`${id}-hint`} className="text-sm text-muted-foreground">
           {hint}

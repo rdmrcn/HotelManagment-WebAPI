@@ -2,11 +2,12 @@
 
 import { createContext, useContext, useMemo, useSyncExternalStore } from "react"
 import {
+  authenticateGuest,
   readAuthState,
-  registerGuest,
   saveBooking,
-  signInGuest,
   signOutGuest,
+  storageKeys,
+  type ActionFailure,
   type Booking,
   type PublicGuest,
 } from "@/lib/storage"
@@ -15,27 +16,30 @@ type Snapshot = {
   status: "loading" | "ready"
   guest: PublicGuest | null
   bookings: Booking[]
+  /** Every stay saved in this browser. These take rooms out of the calendar. */
+  allBookings: Booking[]
   storageError: string | null
 }
 
+type AuthResult = { ok: true; created: boolean; guest: PublicGuest } | ActionFailure
+
 type AuthContextValue = Snapshot & {
   reload: () => void
-  register: (input: { name: string; email: string; password: string }) =>
-    | { ok: true }
-    | { ok: false; error: string; field?: "email" | "password" }
-  signIn: (input: { email: string; password: string }) =>
-    | { ok: true }
-    | { ok: false; error: string; field?: "email" | "password" }
+  signIn: (input: { email: string; password: string; name?: string }) => Promise<AuthResult>
+  register: (input: { email: string; password: string; name?: string }) => Promise<AuthResult>
   signOut: () => void
-  addBooking: (input: { roomSlug: string; checkIn: string; checkOut: string }) =>
-    | { ok: true; booking: Booking }
-    | { ok: false; error: string }
+  addBooking: (input: {
+    roomSlug: string
+    checkIn: string
+    checkOut: string
+  }) => { ok: true; booking: Booking } | ActionFailure
 }
 
 const serverSnapshot: Snapshot = {
-  status: "ready",
+  status: "loading",
   guest: null,
   bookings: [],
+  allBookings: [],
   storageError: null,
 }
 
@@ -48,6 +52,7 @@ function readSnapshot(): Snapshot {
     status: "ready",
     guest: next.guest,
     bookings: next.bookings,
+    allBookings: next.allBookings,
     storageError: next.error,
   }
 }
@@ -57,9 +62,18 @@ function refresh() {
   listeners.forEach((listener) => listener())
 }
 
+function onStorage(event: StorageEvent) {
+  const keys: string[] = Object.values(storageKeys)
+  if (event.key === null || keys.includes(event.key)) refresh()
+}
+
 function subscribe(listener: () => void) {
+  if (listeners.size === 0) window.addEventListener("storage", onStorage)
   listeners.add(listener)
-  return () => listeners.delete(listener)
+  return () => {
+    listeners.delete(listener)
+    if (listeners.size === 0) window.removeEventListener("storage", onStorage)
+  }
 }
 
 function getSnapshot() {
@@ -76,22 +90,20 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const state = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
 
-  const value = useMemo<AuthContextValue>(
-    () => ({
+  const value = useMemo<AuthContextValue>(() => {
+    async function enter(
+      intent: "sign-in" | "register",
+      input: { email: string; password: string; name?: string },
+    ): Promise<AuthResult> {
+      const result = await authenticateGuest({ ...input, intent })
+      if (result.ok) refresh()
+      return result
+    }
+    return {
       ...state,
       reload: () => refresh(),
-      register: (input) => {
-        const result = registerGuest(input)
-        if (!result.ok) return result
-        refresh()
-        return { ok: true }
-      },
-      signIn: (input) => {
-        const result = signInGuest(input)
-        if (!result.ok) return result
-        refresh()
-        return { ok: true }
-      },
+      signIn: (input) => enter("sign-in", input),
+      register: (input) => enter("register", input),
       signOut: () => {
         signOutGuest()
         refresh()
@@ -99,13 +111,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       addBooking: (input) => {
         if (!state.guest) return { ok: false, error: "Sign in again before confirming this stay." }
         const result = saveBooking(state.guest.id, input)
-        if (!result.ok) return result
         refresh()
         return result
       },
-    }),
-    [state],
-  )
+    }
+  }, [state])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

@@ -1,3 +1,5 @@
+import { stayAvailability } from "@/lib/availability"
+import { hashPassword, newSalt, randomId, verifyPassword } from "@/lib/password"
 import { getRoom } from "@/lib/rooms"
 import { quoteStay } from "@/lib/stay"
 
@@ -14,9 +16,21 @@ export type Guest = {
   id: string
   name: string
   email: string
+  salt: string
+  passwordHash: string
+  createdAt: string
+}
+
+/** Accounts saved before passwords were hashed. They are upgraded the next time that guest signs in. */
+type LegacyGuest = {
+  id: string
+  name: string
+  email: string
   password: string
   createdAt: string
 }
+
+type StoredGuest = Guest | LegacyGuest
 
 export type PublicGuest = {
   id: string
@@ -40,7 +54,7 @@ export type Booking = {
 
 export type ActionFailure = { ok: false; error: string; field?: "email" | "password" }
 
-function toPublic(guest: Guest): PublicGuest {
+function toPublic(guest: StoredGuest): PublicGuest {
   return {
     id: guest.id,
     name: guest.name,
@@ -49,16 +63,21 @@ function toPublic(guest: Guest): PublicGuest {
   }
 }
 
-function isGuest(value: unknown): value is Guest {
+function isStoredGuest(value: unknown): value is StoredGuest {
   if (!value || typeof value !== "object") return false
   const guest = value as Record<string, unknown>
-  return (
+  const base =
     typeof guest.id === "string" &&
     typeof guest.name === "string" &&
     typeof guest.email === "string" &&
-    typeof guest.password === "string" &&
     typeof guest.createdAt === "string"
-  )
+  if (!base) return false
+  const hashed = typeof guest.salt === "string" && typeof guest.passwordHash === "string"
+  return hashed || typeof guest.password === "string"
+}
+
+function isHashed(guest: StoredGuest): guest is Guest {
+  return "passwordHash" in guest
 }
 
 function isBooking(value: unknown): value is Booking {
@@ -96,14 +115,14 @@ function writeRaw(key: string, value: string): { ok: true } | { ok: false; error
   }
 }
 
-function readGuests(): { guests: Guest[]; error: string | null } {
+function readGuests(): { guests: StoredGuest[]; error: string | null } {
   const { raw, error } = readRaw(GUESTS_KEY)
   if (error) return { guests: [], error }
   if (!raw) return { guests: [], error: null }
   try {
     const parsed: unknown = JSON.parse(raw)
     if (!Array.isArray(parsed)) return { guests: [], error: READ_ERROR }
-    return { guests: parsed.filter(isGuest), error: null }
+    return { guests: parsed.filter(isStoredGuest), error: null }
   } catch {
     return { guests: [], error: READ_ERROR }
   }
@@ -131,7 +150,7 @@ function readSession(): { id: string | null; error: string | null } {
 function confirmationCode() {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
   const bytes = new Uint8Array(4)
-  crypto.getRandomValues(bytes)
+  globalThis.crypto.getRandomValues(bytes)
   let code = "BOS-"
   for (const byte of bytes) code += alphabet[byte % alphabet.length]
   return code
@@ -140,20 +159,21 @@ function confirmationCode() {
 export function readAuthState(): {
   guest: PublicGuest | null
   bookings: Booking[]
+  allBookings: Booking[]
   error: string | null
 } {
   const guestsResult = readGuests()
   const bookingsResult = readBookings()
   const session = readSession()
   const error = guestsResult.error ?? bookingsResult.error ?? session.error
-  if (error) return { guest: null, bookings: [], error }
+  if (error) return { guest: null, bookings: [], allBookings: [], error }
 
   const guest = guestsResult.guests.find((item) => item.id === session.id) ?? null
   if (session.id && !guest) {
     try {
       window.localStorage.removeItem(SESSION_KEY)
     } catch {
-      return { guest: null, bookings: [], error: READ_ERROR }
+      return { guest: null, bookings: [], allBookings: [], error: READ_ERROR }
     }
   }
 
@@ -163,58 +183,99 @@ export function readAuthState(): {
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
     : []
 
-  return { guest: guest ? toPublic(guest) : null, bookings, error: null }
+  return {
+    guest: guest ? toPublic(guest) : null,
+    bookings,
+    allBookings: bookingsResult.bookings,
+    error: null,
+  }
 }
 
-export function registerGuest(input: {
-  name: string
+function nameFromEmail(email: string) {
+  const local = email.split("@")[0] ?? ""
+  const words = local
+    .replace(/[._+-]+/g, " ")
+    .replace(/\d+/g, " ")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+  if (words.length === 0) return "Guest"
+  return words
+    .slice(0, 3)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ")
+}
+
+export type AuthSuccess = { ok: true; created: boolean; guest: PublicGuest }
+
+/**
+ * One door for sign-in and registration. An unknown email creates the account and signs in; a known
+ * email must use the password it was created with.
+ */
+export async function authenticateGuest(input: {
   email: string
   password: string
-}): { ok: true } | ActionFailure {
+  name?: string
+  intent: "sign-in" | "register"
+}): Promise<AuthSuccess | ActionFailure> {
+  const email = input.email.trim().toLowerCase()
   const existing = readGuests()
   if (existing.error) return { ok: false, error: existing.error }
-  if (existing.guests.some((guest) => guest.email === input.email)) {
-    return {
-      ok: false,
-      field: "email",
-      error: "An account in this browser already uses that email.",
+  const known = existing.guests.find((item) => item.email === email)
+
+  if (known) {
+    if (isHashed(known)) {
+      const matches = await verifyPassword(input.password, known.salt, known.passwordHash)
+      if (!matches) return { ok: false, field: "password", error: wrongPasswordMessage(input.intent) }
+    } else if (known.password !== input.password) {
+      return { ok: false, field: "password", error: wrongPasswordMessage(input.intent) }
     }
+
+    let guest: StoredGuest = known
+    if (!isHashed(known)) {
+      const salt = newSalt()
+      guest = {
+        id: known.id,
+        name: known.name,
+        email: known.email,
+        createdAt: known.createdAt,
+        salt,
+        passwordHash: await hashPassword(input.password, salt),
+      }
+      const upgraded = writeRaw(
+        GUESTS_KEY,
+        JSON.stringify(existing.guests.map((item) => (item.id === known.id ? guest : item))),
+      )
+      if (!upgraded.ok) return upgraded
+    }
+    const session = writeRaw(SESSION_KEY, guest.id)
+    if (!session.ok) return session
+    return { ok: true, created: false, guest: toPublic(guest) }
   }
 
+  const salt = newSalt()
   const guest: Guest = {
-    id: crypto.randomUUID(),
-    name: input.name,
-    email: input.email,
-    password: input.password,
+    id: randomId(),
+    name: input.name?.trim() || nameFromEmail(email),
+    email,
+    salt,
+    passwordHash: await hashPassword(input.password, salt),
     createdAt: new Date().toISOString(),
   }
-  const saved = writeRaw(GUESTS_KEY, JSON.stringify([...existing.guests, guest]))
+  // Another tab may have created accounts while the hash was computing.
+  const latest = readGuests()
+  if (latest.error) return { ok: false, error: latest.error }
+  const saved = writeRaw(GUESTS_KEY, JSON.stringify([...latest.guests, guest]))
   if (!saved.ok) return saved
   const session = writeRaw(SESSION_KEY, guest.id)
   if (!session.ok) return session
-  return { ok: true }
+  return { ok: true, created: true, guest: toPublic(guest) }
 }
 
-export function signInGuest(input: {
-  email: string
-  password: string
-}): { ok: true } | ActionFailure {
-  const existing = readGuests()
-  if (existing.error) return { ok: false, error: existing.error }
-  const guest = existing.guests.find((item) => item.email === input.email)
-  if (!guest) {
-    return {
-      ok: false,
-      field: "email",
-      error: "No account in this browser uses that email.",
-    }
-  }
-  if (guest.password !== input.password) {
-    return { ok: false, field: "password", error: "The password does not match." }
-  }
-  const session = writeRaw(SESSION_KEY, guest.id)
-  if (!session.ok) return session
-  return { ok: true }
+function wrongPasswordMessage(intent: "sign-in" | "register") {
+  return intent === "register"
+    ? "That email already has an account here, and the password does not match it. Use the original password, or try another email."
+    : "That password does not match this email. Use the password you first signed in with, or try a different email."
 }
 
 export function signOutGuest() {
@@ -229,6 +290,7 @@ export function signOutGuest() {
 export function saveBooking(
   guestId: string,
   input: { roomSlug: string; checkIn: string; checkOut: string },
+  today?: string,
 ): { ok: true; booking: Booking } | ActionFailure {
   const guestsResult = readGuests()
   const bookingsResult = readBookings()
@@ -240,11 +302,20 @@ export function saveBooking(
 
   const room = getRoom(input.roomSlug)
   if (!room) return { ok: false, error: "That room is not at the hotel." }
-  const quote = quoteStay(room.nightlyRate, input.checkIn, input.checkOut)
+  const quote = quoteStay(room.nightlyRate, input.checkIn, input.checkOut, today)
   if (!quote.ok) return { ok: false, error: quote.error }
 
+  const availability = stayAvailability(
+    room.slug,
+    input.checkIn,
+    input.checkOut,
+    bookingsResult.bookings,
+    today,
+  )
+  if (!availability.ok) return { ok: false, error: availability.message }
+
   const booking: Booking = {
-    id: crypto.randomUUID(),
+    id: randomId(),
     confirmationCode: confirmationCode(),
     guestId,
     roomSlug: room.slug,
@@ -259,3 +330,5 @@ export function saveBooking(
   if (!saved.ok) return saved
   return { ok: true, booking }
 }
+
+export const storageKeys = { guests: GUESTS_KEY, bookings: BOOKINGS_KEY, session: SESSION_KEY }
