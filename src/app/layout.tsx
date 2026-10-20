@@ -8,14 +8,13 @@ import { SITE_URL, AUTHOR } from "@/lib/house"
 import "./globals.css"
 
 const sourceSans = Source_Sans_3({
-  subsets: ["latin", "latin-ext"],
+  subsets: ["latin"],
   variable: "--font-source-sans",
   display: "swap",
 })
 
 const cormorant = Cormorant_Garamond({
-  subsets: ["latin", "latin-ext"],
-  weight: ["400", "500", "600", "700"],
+  subsets: ["latin"],
   variable: "--font-cormorant",
   display: "swap",
 })

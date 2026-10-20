@@ -1,12 +1,10 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { Suspense } from "react"
 import { PageHeader } from "@/components/page-header"
 import { RoomsBrowser } from "@/components/rooms-browser"
 import { SectionHeading } from "@/components/section-heading"
 import { SideBadge } from "@/components/side-badge"
 import { SideDiagram } from "@/components/side-diagram"
-import { RoomsSkeleton } from "@/components/skeletons"
 import { formatMoney } from "@/lib/format"
 import { roomsOnSide, sideInfo, type RoomSide } from "@/lib/rooms"
 
@@ -36,9 +34,7 @@ export default function RoomsPage() {
         lede="Three rooms face the Bosphorus and five face the street. Pick your dates to see how many of each are left. Not sure which side suits you? Read the short guide below."
       />
       <div className="mt-8">
-        <Suspense fallback={<RoomsSkeleton />}>
-          <RoomsBrowser />
-        </Suspense>
+        <RoomsBrowser />
       </div>
 
       <section id="sides" className="mt-20 scroll-mt-28 border-t border-border pt-16">

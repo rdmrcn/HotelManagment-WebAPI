@@ -1,7 +1,6 @@
 "use client"
 
 import { SearchX } from "lucide-react"
-import { useSearchParams } from "next/navigation"
 import { useMemo, useState } from "react"
 import { useAuth } from "@/components/auth-provider"
 import { DateRangePicker } from "@/components/date-range-picker"
@@ -12,6 +11,7 @@ import { nightAvailability, stayAvailability, windowMessage } from "@/lib/availa
 import { rooms, sideInfo, type RoomSide } from "@/lib/rooms"
 import { validateStay } from "@/lib/stay"
 import { useToday } from "@/lib/use-today"
+import { useUrlSearch } from "@/lib/use-url-search"
 import { cn } from "cn"
 
 type SideFilter = "all" | RoomSide
@@ -24,11 +24,22 @@ const sideOptions: { value: SideFilter; label: string }[] = [
 ]
 
 export function RoomsBrowser() {
-  const params = useSearchParams()
+  const search = useUrlSearch()
+  const params = new URLSearchParams(search)
+  return (
+    <RoomsBrowserView
+      key={search}
+      initialCheckIn={params.get("checkIn") ?? ""}
+      initialCheckOut={params.get("checkOut") ?? ""}
+    />
+  )
+}
+
+function RoomsBrowserView({ initialCheckIn, initialCheckOut }: { initialCheckIn: string; initialCheckOut: string }) {
   const today = useToday()
   const { status, allBookings } = useAuth()
-  const [checkIn, setCheckIn] = useState(params.get("checkIn") ?? "")
-  const [checkOut, setCheckOut] = useState(params.get("checkOut") ?? "")
+  const [checkIn, setCheckIn] = useState(initialCheckIn)
+  const [checkOut, setCheckOut] = useState(initialCheckOut)
   const [side, setSide] = useState<SideFilter>("all")
   const [sort, setSort] = useState<Sort>("price-asc")
   const [onlyAvailable, setOnlyAvailable] = useState(false)
@@ -153,7 +164,7 @@ export function RoomsBrowser() {
               heading="h2"
               checkIn={validDates && !outOfWindow ? checkIn : ""}
               checkOut={validDates && !outOfWindow ? checkOut : ""}
-              priority={index < 3}
+              priority={index < 2}
             />
           ))}
         </div>

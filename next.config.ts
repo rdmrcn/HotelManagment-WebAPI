@@ -8,7 +8,8 @@ const nextConfig: NextConfig = {
   basePath: repoBase,
   assetPrefix: repoBase,
   images: {
-    unoptimized: true,
+    loader: "custom",
+    loaderFile: "./src/lib/image-loader.ts",
   },
   allowedDevOrigins: ["127.0.0.1"],
 };

@@ -23,17 +23,3 @@ export function BookingSkeleton() {
     </div>
   )
 }
-
-export function RoomsSkeleton() {
-  return (
-    <div role="status">
-      <div className="h-16 animate-pulse rounded-2xl bg-muted" />
-      <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }, (_, index) => (
-          <div key={index} className="h-[27rem] animate-pulse rounded-2xl bg-muted" />
-        ))}
-      </div>
-      <span className="sr-only">Loading rooms…</span>
-    </div>
-  )
-}
