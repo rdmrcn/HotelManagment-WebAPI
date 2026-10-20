@@ -153,8 +153,9 @@ assert.equal(/free on|pool is/.test(outside.text), false)
 const payment = expectIntent("Can I pay by card?", "fallback")
 assert.match(payment.text, /does not take payment/i)
 
-const availability = expectIntent("Is the Deluxe Room available tomorrow?", "fallback")
-assert.match(availability.text, /cannot see if Deluxe Room is free/)
+const availability = expectIntent("Is the Deluxe Room available tomorrow?", "availability")
+assert.match(availability.text, /how many are left/)
+assert.match(availability.text, /60 days ahead/)
 assert.equal(availability.actions[0]?.href, "/book?room=deluxe")
 
 for (const prompt of conciergePrompts) {

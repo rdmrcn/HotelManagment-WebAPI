@@ -1,5 +1,6 @@
+import { BOOKING_WINDOW_DAYS } from "@/lib/availability"
 import { formatMoney } from "@/lib/format"
-import { getRoom, rooms, type Room } from "@/lib/rooms"
+import { getRoom, rooms, roomsOnSide, type Room } from "@/lib/rooms"
 
 export type ConciergeAction = {
   label: string
@@ -21,14 +22,12 @@ export const conciergePrompts: { label: string; question: string }[] = [
   { label: "Saved bookings", question: "Where are my bookings saved?" },
 ]
 
-const waterView = /bosphorus|strait|water/i
-
 export function roomsOnTheWater() {
-  return rooms.filter((room) => waterView.test(room.view))
+  return roomsOnSide("bosphorus")
 }
 
 export function roomsOnTheCity() {
-  return rooms.filter((room) => !waterView.test(room.view))
+  return roomsOnSide("city")
 }
 
 function reply(intent: string, text: string, actions: ConciergeAction[]): ConciergeReply {
@@ -289,7 +288,7 @@ export function conciergeWelcome(): ConciergeReply {
 function helpReply(): ConciergeReply {
   return reply(
     "help",
-    "I can help with the eight rooms and nightly prices, which rooms face the Bosphorus, dates and the stay total, check-in, breakfast, and the house in Bebek. I can also open registration, sign-in, booking, or the stays saved in this browser.",
+    "I can help with the eight rooms and nightly prices, which rooms face the Bosphorus and which face the street, how many rooms are left, dates and the stay total, check-in, breakfast, and the house in Bebek. I can also open registration, sign-in, booking, or the stays saved in this browser.",
     helpActions(),
   )
 }
@@ -297,7 +296,7 @@ function helpReply(): ConciergeReply {
 function fallbackReply(text: string, mentioned: Room[] = []): ConciergeReply {
   const scope =
     "I can help with the rooms and nightly prices, sea view and street side, dates and the stay total, check-in, breakfast, and how to register, sign in, or see a saved stay."
-  const limits = "I cannot check availability, take payment, or give an email address."
+  const limits = "I cannot take payment or give an email address."
 
   if (/\b(pay|payment|card|credit|visa|mastercard|invoice|refund)\b/.test(text)) {
     return reply(
@@ -324,11 +323,10 @@ function fallbackReply(text: string, mentioned: Room[] = []): ConciergeReply {
   }
   if (isAvailability(text)) {
     const room = mentioned.length === 1 ? mentioned[0] : null
-    const which = room ? room.name : "a room"
     return reply(
-      "fallback",
-      `I cannot see if ${which} is free. Choose your dates on Book and the stay is saved in this browser. I do not hold a room.`,
-      [room ? bookRoom(room) : { label: "Reserve a room", href: "/book" }],
+      "availability",
+      `${room ? `${room.name}: the house has ${room.units}. ` : ""}Each room type has a fixed number of rooms, and the calendar runs ${BOOKING_WINDOW_DAYS} days ahead. Choose your dates on Book and every room shows how many are left for those nights; sold-out rooms are marked. Weekends and public holidays fill first. I do not hold a room.`,
+      [room ? bookRoom(room) : { label: "Check dates", href: "/book" }],
     )
   }
   if (/\broom/.test(text) || mentioned.length > 0) {
@@ -417,7 +415,7 @@ function totalReply(): ConciergeReply {
   const nights = 3
   return reply(
     "total",
-    `The stay total is the nightly rate multiplied by the number of nights. Taxes are already in the rate. ${room.name} at ${formatMoney(room.nightlyRate)} for ${nights} nights is ${formatMoney(room.nightlyRate * nights)}. Check-in cannot be in the past, check-out is at least one night later, and a stay here stops at 28 nights.`,
+    `The stay total is the nightly rate multiplied by the number of nights. Taxes are already in the rate. ${room.name} at ${formatMoney(room.nightlyRate)} for ${nights} nights is ${formatMoney(room.nightlyRate * nights)}. Check-in cannot be in the past, check-out is at least one night later, a stay here stops at 28 nights, and the calendar runs ${BOOKING_WINDOW_DAYS} days ahead.`,
     [{ label: "Choose dates", href: "/book" }],
   )
 }
@@ -425,7 +423,7 @@ function totalReply(): ConciergeReply {
 function datesReply(): ConciergeReply {
   return reply(
     "dates",
-    "Choose a check-in and a check-out on Book, or on a room page. Check-in cannot be in the past, and check-out has to be at least one night later. A stay booked here can run up to 28 nights.",
+    `Choose a check-in and a check-out on Book, or on a room page. Check-in cannot be in the past, and check-out has to be at least one night later. A stay booked here can run up to 28 nights, and dates open ${BOOKING_WINDOW_DAYS} days ahead.`,
     [{ label: "Choose dates", href: "/book" }],
   )
 }
@@ -451,7 +449,7 @@ function breakfastReply(): ConciergeReply {
 function locationReply(): ConciergeReply {
   return reply(
     "location",
-    "Bosfor Hotels is on Cevdet Paşa Caddesi in Bebek, on the European shore of the Bosphorus in Istanbul. The quay is private. Bebek village is a short walk.",
+    "Bosfor Hotels is on a hillside street in Bebek, in the Beşiktaş district on the European shore of the Bosphorus in Istanbul. The house climbs the slope: rooms on the downhill side face the water, rooms on the uphill side face the street. Bebek's waterfront is a few minutes' walk down.",
     [{ label: "The house", href: "/" }],
   )
 }
@@ -512,7 +510,7 @@ export function answerGuest(input: string): ConciergeReply {
   if (isAccountRequired(text)) {
     return reply(
       "account-required",
-      "Yes. You need an account before you confirm. Confirm booking asks you to create one or sign in first, then the stay is saved in this browser.",
+      "Yes. You need an account before you confirm, and any email with a password of 6 characters or more will do. Confirm booking asks you to sign in first, then the stay is saved in this browser.",
       [
         { label: "Create an account", href: "/register" },
         { label: "Sign in", href: "/sign-in" },
@@ -522,14 +520,14 @@ export function answerGuest(input: string): ConciergeReply {
   if (isRegister(text)) {
     return reply(
       "register",
-      "Create an account with your name, email, and a password. The account stays in this browser.",
+      "Create an account with an email and a password of at least 6 characters. Any email works on this demo, and signing in with a new email creates the account too. Everything stays in this browser, so do not use a real password.",
       [{ label: "Create an account", href: "/register" }],
     )
   }
   if (isSignIn(text)) {
     return reply(
       "sign-in",
-      "Sign in with the email and password you already saved in this browser.",
+      "Sign in with any email and a password of at least 6 characters. A new email creates the account for you; a known email needs the password it was created with. This is a demo, so do not use a real password.",
       [{ label: "Sign in", href: "/sign-in" }],
     )
   }

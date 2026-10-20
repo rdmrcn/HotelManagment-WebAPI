@@ -9,10 +9,12 @@ export type RoomSide = "bosphorus" | "city"
 
 export type Room = {
   slug: string
+  name: string
   side: RoomSide
   /** How many rooms of this type the house has. */
   units: number
-  name: string
+  /** Guests the room sleeps comfortably. */
+  sleeps: number
   nightlyRate: number
   size: string
   bed: string
@@ -37,145 +39,154 @@ export function roomCover(room: Room) {
 export const rooms: Room[] = [
   {
     slug: "standard",
+    name: "Standard Room",
     side: "city",
     units: 12,
-    name: "Standard Room",
+    sleeps: 2,
     nightlyRate: 220,
     size: "24 m²",
     bed: "Double bed",
     view: "City rooftops",
     summary:
-      "A quiet double on the city side. Warm white linen, a brass lamp, and tiled roofs across the way.",
+      "A quiet double on the street side. Warm walnut, white linen, and red tiled roofs across the way.",
     description:
-      "Standard Room is the smallest room in the house. One double bed in warm white linen, a light-oak desk, and a sash window onto neighboring rooftops and the upper floors of the next street. Buildings fill the view.",
+      "Standard Room is the smallest room in the house and the best value on the street side. One double bed under a walnut headboard, a writing desk with a brass lamp and a tea set, and a tall window onto the rooftops and minarets of the neighbourhood. There is no water in this view, only the city going about its day.",
     amenities: [
       "Double bed",
       "City rooftops",
       "Rain shower",
       "Writing desk",
+      "Tea set",
       "Linen robes",
       "Wireless internet",
     ],
     images: photos("standard", [
-      "Compact double room with a low oak headboard, warm white bedding, a brass lamp, and a sash window onto tiled rooftops and apartment buildings.",
-      "The same city room from a light-oak writing desk and beige chair, the double bed to the side, neighboring buildings outside the window.",
+      "Double bed with a walnut headboard and a teal cushion beside a tall window onto red-roofed city buildings.",
+      "Walnut writing desk with a brass lamp and a teal teapot, a tall window beside it showing a minaret over the rooftops.",
     ]),
   },
   {
     slug: "queen-double",
+    name: "Queen Double Room",
     side: "city",
     units: 6,
-    name: "Queen Double Room",
+    sleeps: 4,
     nightlyRate: 250,
     size: "32 m²",
     bed: "Two queen beds",
     view: "Side street",
-    summary: "Two queen beds on the city side, priced under the Queen Room.",
+    summary: "Two queen beds on the street side, priced under the Queen Room.",
     description:
-      "Queen Double Room is the two-bed city room. Two queen beds, a nightstand between them, warm white linen, and a window onto a side street of apartment buildings. It costs less than the Queen Room, which is a single bed on the same side of the house.",
+      "Queen Double Room is the two-bed room on the street side. Two queen beds with teal throws, a window onto the apartment buildings and a minaret, and a corner with a teal armchair and a chest of drawers. It costs less than the Queen Room, which has a single bed on the same side of the house.",
     amenities: [
       "Two queen beds",
-      "Side-street view",
+      "Street view",
+      "Armchair corner",
       "Rain shower",
       "Linen robes",
       "Wireless internet",
     ],
     images: photos("queen-double", [
-      "Two queen beds with walnut headboards and a brass lamp between them, greige drapes open to a narrow street of apartment buildings.",
-      "The same Queen Double Room from the doorway, both queen beds in warm white linen, city buildings filling the window.",
+      "Two beds with white linen and teal throws, a walnut headboard, and a window onto apartment buildings and a minaret.",
+      "A teal armchair beside a walnut chest of drawers, a window onto red roofs and a minaret, and two beds in the room beyond.",
     ]),
   },
   {
     slug: "queen",
+    name: "Queen Room",
     side: "city",
     units: 10,
-    name: "Queen Room",
+    sleeps: 2,
     nightlyRate: 295,
     size: "30 m²",
     bed: "Queen bed",
     view: "Across the street",
-    summary: "One queen bed and a writing desk. Apartment buildings fill the window.",
+    summary: "One queen bed under a slatted walnut headboard, with the street and its plane trees outside.",
     description:
-      "Queen Room is a single bed, wider than the Standard Room double, on the city side of the house. Warm white linen, a walnut headboard, and casement windows that look straight at the plaster facades across a narrow street.",
+      "Queen Room is one wide queen bed on the street side of the house. A slatted walnut headboard, a teal runner, and a tall window that looks down the hillside street between apartment buildings and plane trees. A teal armchair and a desk by the window make it an easy room to work from.",
     amenities: [
       "Queen bed",
       "Writing desk",
-      "City view",
+      "Street view",
       "Rain shower",
       "Linen robes",
       "Wireless internet",
     ],
     images: photos("queen", [
-      "One queen bed with a walnut headboard, warm white bedding, brass lamps, and windows filled by apartment facades across the street.",
-      "The same Queen Room from the writing desk, looking across the single queen bed toward neighboring city buildings.",
+      "Queen bed with a slatted walnut headboard and a teal runner, a tall window onto a tree-lined street of apartment buildings.",
+      "Teal armchair beside a walnut desk with folded towels, a window onto red roofs and a minaret, and the edge of the bed.",
     ]),
   },
   {
     slug: "king-double",
+    name: "King Double Room",
     side: "city",
     units: 6,
-    name: "King Double Room",
+    sleeps: 4,
     nightlyRate: 340,
     size: "42 m²",
     bed: "Two king beds",
     view: "Rooftops",
     summary: "Two king beds facing the rooftops, priced under the King Room.",
     description:
-      "King Double Room puts two wide king beds in one room, with walnut headboards and a lamp between them. The window looks over tiled rooftops and the buildings of the next street. It is the city room for four, and it costs less than the King Room.",
+      "King Double Room puts two wide king beds in one room, under a headboard of walnut and teal panels, with a leather bench at the foot. The tall windows look over the rooftops and a minaret on the next hill. The bathroom has a round brass-framed mirror and a teal-tiled rain shower. It is the street-side room for four, and it costs less than the King Room.",
     amenities: [
       "Two king beds",
       "Rooftop view",
-      "Rain shower",
+      "Teal-tiled rain shower",
+      "Leather bench",
       "Linen robes",
       "Wireless internet",
     ],
     images: photos("king-double", [
-      "Two wide king beds with walnut headboards and warm white bedding, a window onto tiled rooftops and the next block of buildings.",
-      "The same King Double Room from the window side, both king beds visible, rooftops and apartment buildings outside.",
+      "Two king beds under a walnut and teal panelled headboard, a leather bench, and tall windows onto rooftops and a minaret.",
+      "Bathroom with a round brass-framed mirror over a walnut vanity and a glass shower walled in teal tiles.",
     ]),
   },
   {
     slug: "king",
+    name: "King Room",
     side: "city",
     units: 8,
-    name: "King Room",
+    sleeps: 2,
     nightlyRate: 385,
     size: "36 m²",
     bed: "King bed",
     view: "City buildings",
-    summary: "One wide king bed on the city side, with buildings and rooftops outside.",
+    summary: "One wide king bed on the street side, with a minaret and rooftops outside.",
     description:
-      "King Room is the largest single bed on the street side: one wide king in warm white linen, a taupe headboard, and a charcoal armchair by the window. Outside are the buildings of the next block. It costs more than King Double Room and less than Deluxe Room on the water.",
+      "King Room is the largest single-bed room on the street side: one wide king under a teal headboard, brass pendant lamps, and a window that looks over rooftops, plane trees, and a minaret. A desk with a teal armchair sits by a second window onto the neighbouring apartment block. It costs more than King Double Room and less than Deluxe Room on the water.",
     amenities: [
       "King bed",
       "City view",
       "Rain shower",
-      "Charcoal armchair",
+      "Writing desk",
       "Linen robes",
       "Wireless internet",
     ],
     images: photos("king", [
-      "One wide king bed with a taupe headboard, warm white bedding, brass lamps, a charcoal armchair, and a window onto city buildings and rooftops.",
-      "The same King Room from beside the window, looking back at the single wide king bed and charcoal armchair, buildings outside.",
+      "King bed under a teal headboard with a grey throw, brass pendant lamps, and a tall window onto rooftops and a minaret.",
+      "Walnut desk with a brass lamp and a teal armchair beside a window onto apartment balconies and trees, the bed behind.",
     ]),
   },
   {
     slug: "deluxe",
+    name: "Deluxe Room",
     side: "bosphorus",
     units: 5,
-    name: "Deluxe Room",
+    sleeps: 3,
     nightlyRate: 510,
     size: "46 m²",
     bed: "King bed",
     view: "Wide Bosphorus balcony",
     summary:
-      "The king room with space to sit: two linen armchairs, a wider balcony, and a long afternoon on the strait.",
+      "The king room with space to sit: a sofa, a balcony, and the whole strait through floor-to-ceiling glass.",
     description:
-      "Deluxe Room keeps the king bed and adds a lounge corner. Two cream armchairs, a small marble table, and a balcony wide enough for both of you. The glass folds all the way back, and the last light sits on the water.",
+      "Deluxe Room keeps the king bed and adds a lounge corner: a teal sofa, an armchair, and a round brass table, all facing a wall of glass onto the Bosphorus. There is a balcony with an iron railing outside the desk. Ferries cross the window all day, and the last light sits on the water.",
     amenities: [
       "King bed",
       "Lounge seating",
-      "Wider balcony",
+      "Balcony",
       "Bosphorus view",
       "Rain shower",
       "Writing desk",
@@ -183,55 +194,57 @@ export const rooms: Room[] = [
       "Wireless internet",
     ],
     images: photos("deluxe", [
-      "Deluxe king bedroom with a walnut headboard, a folded sage throw, two beige armchairs, and a wide balcony over the Bosphorus at sunset.",
-      "The same Deluxe Room from the lounge, two beige armchairs facing the sunset balcony, the king bed at the left.",
+      "King bed with a teal runner and a sofa corner facing a wall of glass onto the Bosphorus, a bridge and a ferry in the distance.",
+      "Walnut desk and a teal chair beside an open balcony door, a white curtain lifting, a ferry crossing the strait outside.",
     ]),
   },
   {
     slug: "suite",
+    name: "Suite Room",
     side: "bosphorus",
     units: 3,
-    name: "Suite Room",
+    sleeps: 4,
     nightlyRate: 780,
     size: "64 m²",
     bed: "King bed",
     view: "Strait, two rooms",
     summary:
-      "A sitting room and a separate bedroom, with a door you can close between them.",
+      "A sitting room and a separate bedroom, both facing the water, with a doorway between them.",
     description:
-      "Suite Room is two rooms on the water. The sitting room has a low sofa in cream linen, a round walnut table, and tea when you arrive. The bedroom is through a doorway you can close. Turndown is in the evening, with the strait still moving outside.",
+      "Suite Room is two rooms on the water. The sitting room has a deep navy sofa, a marble-topped table, and sliding glass onto a balcony above the strait. The king bedroom is through a doorway, with a teal bench at the foot of the bed and the Bosphorus in the window. Turndown is in the evening, with the ferries still moving outside.",
     amenities: [
       "Separate sitting room",
       "King bedroom",
       "Balcony",
       "Bosphorus view",
-      "Dining table for two",
+      "Marble coffee table",
       "Rain shower",
       "Linen robes",
       "Evening turndown",
       "Wireless internet",
     ],
     images: photos("suite", [
-      "Suite bedroom at dusk with a walnut headboard, warm white bedding, lit brass lamps, and a plain doorway into the sitting room, the strait outside.",
-      "The Suite sitting room at blue hour: a cream sofa, an oak table, and a doorway back to the king bed and brass lamps.",
+      "Suite sitting room with a navy sofa and a marble table, a bookshelf, the bedroom through a doorway, and sliding glass onto the strait.",
+      "Suite bedroom with a white king bed and a teal bench, a window with the Bosphorus and a ferry at sunset, a doorway to the sitting room.",
     ]),
   },
   {
     slug: "presidential",
+    name: "Bosfor Suite Room",
     side: "bosphorus",
     units: 2,
-    name: "Bosfor Suite Room",
+    sleeps: 4,
     nightlyRate: 1250,
     size: "102 m²",
     bed: "King bed",
     view: "Private water terrace",
     summary:
-      "The water floor. A stone fireplace, a long sofa, and a private terrace facing the Bosphorus.",
+      "The top floor of the house. A long teal sofa, folding glass walls, and a private terrace over the Bosphorus.",
     description:
-      "Bosfor Suite Room is the water floor of the house. A pale stone fireplace, a dining table for four, and doors onto a terrace that is not shared with other rooms. Breakfast can be brought out. At dusk the strait goes the color of the walnut, and the hills on the Asian shore light up one by one.",
+      "Bosfor Suite Room is the top of the house, with only two on the floor. A long teal sofa, a walnut dining table, and glass walls that fold all the way back onto a private stone terrace. Two loungers, olive trees in terracotta, and tea for two. At dusk the strait goes copper, the bridge lights up, and the mosques of the old city appear on the far shore.",
     amenities: [
       "Private terrace",
-      "Stone fireplace",
+      "Folding glass walls",
       "King bedroom",
       "Separate sitting room",
       "Dining table for four",
@@ -241,22 +254,29 @@ export const rooms: Room[] = [
       "Wireless internet",
     ],
     images: photos("presidential", [
-      "Bosfor Suite bedroom at dusk, a wide king bed and walnut headboard, with floor-to-ceiling glass toward a private terrace on the Bosphorus.",
-      "The Bosfor Suite living room at dusk, a long cream sofa and a walnut dining table for four, terrace doors open to the strait.",
+      "Bosfor Suite living room with a teal sofa and a walnut dining table, glass walls open to a terrace over the Bosphorus at sunset.",
+      "Private stone terrace with two teal loungers, olive trees in terracotta pots, a tea tray, and the Bosphorus, a bridge and a ferry beyond.",
     ]),
   },
 ]
 
-export const sideInfo: Record<RoomSide, { label: string; badge: string; short: string }> = {
+export const sideInfo: Record<
+  RoomSide,
+  { label: string; badge: string; short: string; blurb: string }
+> = {
   bosphorus: {
     label: "Bosphorus side",
     badge: "Bosphorus view",
-    short: "Faces the water, downhill",
+    short: "Faces the water",
+    blurb:
+      "The downhill side of the house. Glass looks over the roofs of Bebek straight onto the strait, the bridge, and the ferries.",
   },
   city: {
     label: "City side",
     badge: "City view",
-    short: "Faces the street, uphill",
+    short: "Faces the street",
+    blurb:
+      "The uphill side, on the street. Windows look at rooftops, minarets, and plane trees. Priced lower than the water side.",
   },
 }
 
