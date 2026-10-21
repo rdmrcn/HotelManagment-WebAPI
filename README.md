@@ -49,7 +49,7 @@ A portfolio demo of a hotel booking site: a fictional house hotel on a hillside 
 - Sticky header with a Book now call to action, hero search bar, accessible date-range picker (keyboard navigation, bottom sheet on mobile), filter by side, sort by price, size or rooms left, a "hide sold-out rooms" toggle.
 - Sticky stay summary on desktop and a bottom bar on mobile, guest count, cancel a stay and open its receipt from the account page.
 - Gallery with a lightbox, amenities, sample reviews, location section with a click-to-load OpenStreetMap, footer with contact and policies.
-- A sitewide concierge ("Ask") that answers questions about rooms, prices, views, dates, availability and the account flow. It is a small rule-based matcher, not an AI service.
+- A sitewide concierge ("Ask") that answers questions about rooms, prices, views, dates, availability and the account flow. It matches the question to a short answer in the browser.
 
 **The hillside story**
 - The house is built into a steep street between Besiktas and Bebek. Deluxe, Suite and Bosfor Suite face the Bosphorus. Standard, Queen, King, Queen Double and King Double face the street and the rooftops. Rooms carry "Bosphorus view" or "City view" badges, and the rooms page has a "which side" explainer with a hillside diagram.

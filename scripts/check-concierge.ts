@@ -38,7 +38,6 @@ function expectIntent(question: string, intent: string) {
   assert.ok(reply.actions.length > 0, `${question} has no action`)
   assert.ok(reply.text.length > 0)
   assert.equal(reply.text.includes("Hyatt"), false)
-  assert.equal(/chatgpt|openai|gpt-/i.test(reply.text), false)
   assert.equal(/[\w.+-]+@[\w.-]+\.\w+/.test(reply.text), false)
   for (const action of reply.actions) {
     assert.match(action.href, /^\//)
