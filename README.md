@@ -5,7 +5,7 @@ A portfolio demo of a hotel booking site: a fictional house hotel on a hillside 
 **Live site:** [https://rdmrcn.github.io/HotelManagment-WebAPI/](https://rdmrcn.github.io/HotelManagment-WebAPI/)
 **Author:** [Reha Demircan](https://reha-demircan-portfolio.vercel.app/) · [Source on GitHub](https://github.com/rdmrcn/HotelManagment-WebAPI)
 
-> Demo project, fictional brand. Bosfor Hotels is not a real hotel, nothing is for sale, no payment is taken and no data leaves the browser. Reviews are sample text.
+> Demo project, fictional brand. Bosfor Hotels is not a real hotel, nothing is for sale, checkout is a demo with no real charge, and no data leaves the browser. Reviews are sample text.
 
 ## Screenshots
 
@@ -38,9 +38,16 @@ A portfolio demo of a hotel booking site: a fictional house hotel on a hillside 
 - "N rooms left" appears on room cards, room pages and the booking flow, with "Only 1 left" / "Only 2 left" urgency.
 - The date picker and the rooms list react to sold-out nights. Booking checks every night of the stay, and the visitor's own saved bookings reduce availability. Dates past the 60-day window get a friendly message.
 
+**Demo checkout**
+- Booking ends in a card form (name, number, expiry, CVC) with Luhn and expiry validation and the notice "Demo checkout. No real charge. Use 4242 4242 4242 4242."
+- `4242 4242 4242 4242` with any future expiry and any 3-digit CVC succeeds. `4000 0000 0000 0002` is declined with a clear error. Any other number that passes Luhn gets "Only the demo card is accepted". Failed payments create no booking and leave availability untouched.
+- There is no server and no Stripe key. `src/lib/payment.ts` only recognises Stripe's published test numbers. The full card number, expiry and CVC are never stored. The booking keeps the card brand and the last four digits only.
+- After payment, `/confirmation/?ref=BOS-XXXX` shows the reference, room, dates, guests, nightly rate, total, last four digits and a link to `/receipt/?ref=BOS-XXXX`, a reservation voucher that prints cleanly with `window.print()`. Both pages only open for the account that paid, in the browser that holds the booking.
+- Sign-in rules are unchanged: you sign in first, then pay.
+
 **Booking and browsing**
 - Sticky header with a Book now call to action, hero search bar, accessible date-range picker (keyboard navigation, bottom sheet on mobile), filter by side, sort by price, size or rooms left, a "hide sold-out rooms" toggle.
-- Sticky stay summary on desktop and a bottom bar on mobile, confirmation card, cancel a stay from the account page.
+- Sticky stay summary on desktop and a bottom bar on mobile, guest count, cancel a stay and open its receipt from the account page.
 - Gallery with a lightbox, amenities, sample reviews, location section with a click-to-load OpenStreetMap, footer with contact and policies.
 - A sitewide concierge ("Ask") that answers questions about rooms, prices, views, dates, availability and the account flow. It is a small rule-based matcher, not an AI service.
 
@@ -75,7 +82,7 @@ node scripts/make-image-variants.mjs
 
 ## Known limitations
 
-- Demo only. There is no real backend, payment or email. Clearing site data removes accounts and bookings.
+- Demo only. There is no real backend, payment processor or email. The card form is a simulation, so no card is ever charged or sent anywhere. Clearing site data removes accounts and bookings.
 - Accounts and bookings are per browser. Nothing syncs between devices, and the same stay can be booked in two browsers.
 - Hashing in the browser protects nothing against someone with access to that browser. It is there to avoid storing plain text, not as real authentication.
 - Availability is simulated, not read from a property system, and is limited to 60 days ahead.
@@ -101,7 +108,7 @@ Open [http://127.0.0.1:43123/HotelManagment-WebAPI/](http://127.0.0.1:43123/Hote
 | `npm run build` | Static export to `out/` |
 | `npm run lint` | ESLint |
 | `npm run typecheck` | `next typegen` then `tsc --noEmit` |
-| `npm test` | Vitest unit tests (auth, password hashing, availability, concierge) and the scripted concierge check |
+| `npm test` | Vitest unit tests (auth, password hashing, availability, payment and checkout, concierge) and the scripted concierge check |
 | `npm run check` | Lint, typecheck and tests |
 
 The Pages workflow (`.github/workflows/pages.yml`) runs lint, typecheck and tests before it builds and deploys, and also runs them on pull requests.
