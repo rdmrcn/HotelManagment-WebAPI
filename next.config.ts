@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-const repoBase = "/HotelManagment-WebAPI";
+const repoBase = process.env.VERCEL ? "" : "/HotelManagment-WebAPI";
 
 const nextConfig: NextConfig = {
   output: "export",
