@@ -1,5 +1,5 @@
 /** GitHub Pages project path. next/image does not prefix public files under `output: 'export'`. */
-export const BASE_PATH = "/HotelManagment-WebAPI"
+export const BASE_PATH = ""
 
 export function withBasePath(path: string) {
   if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("data:")) {
