@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { ChatDesk } from "@/components/chat-desk"
-import { PageHeader } from "@/components/page-header"
+import { TranslatedIntro } from "@/components/translated-intro"
 
 export const metadata: Metadata = {
   title: "Ask",
@@ -11,11 +11,7 @@ export const metadata: Metadata = {
 export default function AskPage() {
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col px-5 pt-10 pb-8 md:pt-14">
-      <PageHeader
-        eyebrow="Concierge"
-        title="Ask the house"
-        lede="A short conversation about the rooms, the view, dates, and how to book. It stays in this browser. It does not take payment or write the reservation for you. That happens at demo checkout on the Book page."
-      />
+      <TranslatedIntro page="ask" />
       <div
         id="ask"
         className="mt-8 h-[clamp(28rem,calc(100dvh-18rem),40rem)] overflow-hidden rounded-3xl border border-border bg-card"

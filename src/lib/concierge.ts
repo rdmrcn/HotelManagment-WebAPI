@@ -1,5 +1,8 @@
 import { BOOKING_WINDOW_DAYS } from "@/lib/availability"
+import { contact } from "@/lib/contact"
 import { formatMoney } from "@/lib/format"
+import { turkishConcierge, turkishPrompts } from "@/lib/i18n/concierge-tr"
+import type { Locale } from "@/lib/i18n/locale"
 import { getRoom, rooms, roomsOnSide, type Room } from "@/lib/rooms"
 
 export type ConciergeAction = {
@@ -54,9 +57,21 @@ function roomBySlug(slug: string) {
   return getRoom(slug) ?? null
 }
 
-function normalize(input: string) {
+function fold(input: string) {
   return input
+    .replace(/İ/g, "i")
+    .replace(/ı/g, "i")
     .toLowerCase()
+    .replace(/\u0307/g, "")
+    .replace(/ş/g, "s")
+    .replace(/ğ/g, "g")
+    .replace(/ü/g, "u")
+    .replace(/ö/g, "o")
+    .replace(/ç/g, "c")
+}
+
+function normalize(input: string) {
+  return fold(input)
     .replace(/['’]/g, "")
     .replace(/&/g, " and ")
     .replace(/[^a-z0-9\s-]/g, " ")
@@ -91,17 +106,20 @@ function isConfirmationCode(text: string) {
   if (/\bconfirmation[\s-]+codes?\b/.test(text)) return true
   if (/\bconfirmation\b/.test(text) && /\b(code|number|format|look)\b/.test(text)) return true
   if (/\bbos\b/.test(text) && /\b(code|confirmation|mean|looks?)\b/.test(text)) return true
+  if (/\bonay kodu\b/.test(text)) return true
   return false
 }
 
 function isSignOut(text: string) {
-  return /\b(sign[\s-]?out|log[\s-]?out|logout|signout)\b/.test(text)
+  return /\b(sign[\s-]?out|log[\s-]?out|logout|signout|cikis yap|oturumu kapat)\b/.test(text)
 }
 
 function isAccountRequired(text: string) {
-  const account = /\b(account|register|registered|signed in|logged in|sign[\s-]?in)\b/.test(text)
-  const gate = /\b(need|needed|needs|required|require|must|without|before)\b/.test(text) || /\bhave to\b/.test(text)
-  const action = /\b(confirm|book|booking|reserve|reservation)\b/.test(text)
+  const account = /\b(account|register|registered|signed in|logged in|sign[\s-]?in|hesap)\b/.test(text)
+  const gate =
+    /\b(need|needed|needs|required|require|must|without|before|gerekli|lazim|oncesinde|olmadan)\b/.test(text) ||
+    /\bhave to\b/.test(text)
+  const action = /\b(confirm|book|booking|reserve|reservation|rezerv|onayla)\b/.test(text)
   return account && gate && action
 }
 
@@ -115,15 +133,17 @@ function isRegister(text: string) {
   if (/\b(need|want)\b.{0,24}\baccount\b/.test(text) && !/\b(confirm|book|booking|reserve|reservation)\b/.test(text)) {
     return true
   }
+  if (/\b(kayit ol|uye ol|hesap ac|hesap olustur)\b/.test(text)) return true
+  if (/\bhesap\b/.test(text) && /\b(acilir|acmak|olustur|nasil)\b/.test(text)) return true
   return false
 }
 
 function isSignIn(text: string) {
-  return /\b(sign[\s-]?in|log[\s-]?in|login|signin)\b/.test(text)
+  return /\b(sign[\s-]?in|log[\s-]?in|login|signin|giris yap|oturum ac)\b/.test(text)
 }
 
 function isBreakfast(text: string) {
-  return /\bbreakfast\b/.test(text)
+  return /\b(breakfast|kahvalti)\b/.test(text)
 }
 
 function isTimes(text: string) {
@@ -133,6 +153,7 @@ function isTimes(text: string) {
   if (checkIn && checkOut) return true
   if ((checkIn || checkOut) && /\b(time|times|when|hour|oclock)\b/.test(text)) return true
   if (/\b(arrival|arrive)\b/.test(text) && /\b(time|times|when|early)\b/.test(text)) return true
+  if (/\b(giris|cikis)\b/.test(text) && /\bsaat\b/.test(text)) return true
   return false
 }
 
@@ -141,39 +162,44 @@ function isTotal(text: string) {
   if (/\btotal\b/.test(text) && /\b(stay|night|nights|price|cost|rate|much)\b/.test(text)) return true
   if (/\bhow much\b/.test(text) && /\b(nights?|stay|total)\b/.test(text)) return true
   if (/\bmultipl/.test(text)) return true
+  if (/\btoplam\b/.test(text) && /\b(konaklama|gece|fiyat|hesap)\b/.test(text)) return true
+  if (/\bnasil hesaplan/.test(text)) return true
   return false
 }
 
 function isDates(text: string) {
   if (/\bdates?\b/.test(text) && /\b(choose|pick|select|set|change|how)\b/.test(text)) return true
   if (/\b(choose|pick|select|set)\b/.test(text) && /\b(check[\s-]?in|nights?)\b/.test(text)) return true
+  if (/\btarih\b/.test(text) && /\b(sec|nasil|degistir)\b/.test(text)) return true
   return false
 }
 
 function isAvailability(text: string) {
-  return /\b(available|availability|vacant|vacancy|sold out|fully booked)\b/.test(text)
+  return /\b(available|availability|vacant|vacancy|sold out|fully booked|musait|musaitlik)\b/.test(text)
 }
 
 function isLocation(text: string) {
-  if (/\b(address|located|location|directions)\b/.test(text)) return true
+  if (/\b(address|located|location|directions|adres|konum|yol tarifi)\b/.test(text)) return true
   if (/\bwhere\b/.test(text) && /\b(hotel|house|bosfor|istanbul|bebek|you)\b/.test(text)) return true
+  if (/\bnerede\b/.test(text) && /\b(otel|bosfor|istanbul|bebek)\b/.test(text)) return true
   if (/\bhow do i get\b/.test(text)) return true
   return false
 }
 
 function isSea(text: string) {
-  if (/\b(bosphorus|bosporus|bosphorous|waterfront)\b/.test(text)) return true
+  if (/\b(bosphorus|bosporus|bosphorous|waterfront|bogaz)\b/.test(text)) return true
   if (/\bsea[\s-]?view\b/.test(text) || /\bwater[\s-]?view\b/.test(text)) return true
+  if (/\bdeniz manzar/.test(text)) return true
   if (/\bstrait\b/.test(text) && /\b(room|rooms|view|face|facing)\b/.test(text)) return true
-  if (/\b(sea|water)\b/.test(text) && /\b(room|rooms|view|face|facing|overlook)\b/.test(text)) return true
+  if (/\b(sea|water|deniz)\b/.test(text) && /\b(room|rooms|view|face|facing|overlook|oda|manzara)\b/.test(text)) return true
   return false
 }
 
 function isCity(text: string) {
   if (isSea(text)) return false
-  const cue = /\b(street|buildings?|rooftops?|city[\s-]?view|city[\s-]?side)\b/.test(text)
+  const cue = /\b(street|buildings?|rooftops?|city[\s-]?view|city[\s-]?side|sokak|cati|sehir tarafi)\b/.test(text)
   if (!cue) return false
-  return /\b(room|rooms|face|facing|overlook|view|which|what)\b/.test(text)
+  return /\b(room|rooms|face|facing|overlook|view|which|what|oda|hangi|manzara)\b/.test(text)
 }
 
 function isStorage(text: string) {
@@ -187,6 +213,7 @@ function isStorage(text: string) {
   if (/\bwhere\b/.test(text) && stays && !/\b(see|view|find|show)\b/.test(text) && !/\b(hotel|house)\b/.test(text)) {
     return true
   }
+  if (/\b(kayitli|saklaniyor|tarayicida)\b/.test(text) && /\brezerv\w*/.test(text)) return true
   return false
 }
 
@@ -196,7 +223,8 @@ function isSeeBooking(text: string) {
     /\b(see|view|find|show)\b/.test(text) ||
     /\blook up\b/.test(text) ||
     (/\bcheck\b/.test(text) && !/\bcheck[\s-]?in\b/.test(text) && !/\bcheck[\s-]?out\b/.test(text))
-  return thing && see
+  if (thing && see) return true
+  return /\brezerv\w*/.test(text) && /\b(gor|goster)\b/.test(text) && !/\bkayitli\b/.test(text)
 }
 
 function isQueenKing(text: string, mentioned: Room[]) {
@@ -218,7 +246,12 @@ function isDoubles(text: string, mentioned: Room[]) {
 }
 
 function wantsBooking(text: string) {
-  return /\b(book|booking|reserve|reservation)\b/.test(text) || /\bwant\b/.test(text) || /\bstay in\b/.test(text)
+  return (
+    /\b(book|booking|reserve|reservation)\b/.test(text) ||
+    /\bwant\b/.test(text) ||
+    /\bstay in\b/.test(text) ||
+    /\brezerv/.test(text)
+  )
 }
 
 function isSpecificRoom(text: string, mentioned: Room[]) {
@@ -227,22 +260,23 @@ function isSpecificRoom(text: string, mentioned: Room[]) {
 }
 
 function isPrices(text: string) {
-  if (/\b(price|prices|priced|rate|rates|nightly|how much)\b/.test(text)) return true
+  if (/\b(price|prices|priced|rate|rates|nightly|how much|fiyat|fiyatlar|gecelik|ucret)\b/.test(text)) return true
   if (/\b(what|which)\s+rooms\b/.test(text)) return true
   if (/\brooms do you\b/.test(text) || /\broom types\b/.test(text)) return true
   return false
 }
 
 function isBook(text: string) {
-  return /\b(book|booking|reserve|reservation)\b/.test(text)
+  return /\b(book|booking|reserve|reservation)\b/.test(text) || /\brezerv/.test(text)
 }
 
 function isHelp(text: string) {
-  if (/^(help|hello|hi|hey|good morning|good afternoon|good evening)$/.test(text)) return true
+  if (/^(help|hello|hi|hey|good morning|good afternoon|good evening|merhaba|selam|yardim)$/.test(text)) return true
   if (/\bwhat can you (help|do|answer)\b/.test(text)) return true
   if (/\bhow can you help\b/.test(text)) return true
   if (/\bwhat do you (do|help)\b/.test(text)) return true
   if (/\bwhat can i ask\b/.test(text)) return true
+  if (/\b(ne sorabilirim|nasil yardim)\b/.test(text)) return true
   return false
 }
 
@@ -274,15 +308,22 @@ function helpActions(): ConciergeAction[] {
   ]
 }
 
-export function conciergeWelcome(): ConciergeReply {
-  return reply(
-    "help",
-    "Good day. I am the concierge for Bosfor Hotels. Ask about a room, the view, breakfast, or how to book, and I will point you to the next page. I answer from this site, in this browser.",
-    [
-      { label: "See the rooms", href: "/rooms" },
-      { label: "Reserve a room", href: "/book" },
-    ],
+export function conciergeWelcome(locale: Locale = "en"): ConciergeReply {
+  return withLocale(
+    reply(
+      "help",
+      "Good day. I am the concierge for Bosfor Hotels. Ask about a room, the view, breakfast, or how to book, and I will point you to the next page. I answer from this site, in this browser.",
+      [
+        { label: "See the rooms", href: "/rooms" },
+        { label: "Reserve a room", href: "/book" },
+      ],
+    ),
+    locale,
   )
+}
+
+function withLocale(reply: ConciergeReply, locale: Locale) {
+  return locale === "tr" ? turkishConcierge(reply) : reply
 }
 
 function helpReply(): ConciergeReply {
@@ -296,7 +337,7 @@ function helpReply(): ConciergeReply {
 function fallbackReply(text: string, mentioned: Room[] = []): ConciergeReply {
   const scope =
     "I can help with the rooms and nightly prices, sea view and street side, dates and the stay total, check-in, breakfast, and how to register, sign in, or see a saved stay."
-  const limits = "I cannot take real payment or give an email address."
+  const limits = "I cannot take real payment."
 
   if (/\b(pay|payment|card|credit|visa|mastercard|invoice|refund)\b/.test(text)) {
     return reply(
@@ -308,13 +349,17 @@ function fallbackReply(text: string, mentioned: Room[] = []): ConciergeReply {
       ],
     )
   }
-  if (/\b(e-?mail|phone|telephone|whatsapp)\b/.test(text)) {
-    return reply("fallback", `There is no email address or phone number on this site. ${scope}`, [
-      { label: "Create an account", href: "/register" },
-      { label: "Reserve a room", href: "/book" },
-    ])
+  if (/\b(e-?mail|eposta|phone|telephone|telefon|whatsapp)\b/.test(text)) {
+    return reply(
+      "fallback",
+      `The contact page lists a demo phone, ${contact.phoneDisplay}, and a demo email, ${contact.email}. Both are fictional, like the hotel. A message saved there stays in this browser. ${scope}`,
+      [
+        { label: "Contact the house", href: "/contact" },
+        { label: "Reserve a room", href: "/book" },
+      ],
+    )
   }
-  if (/\b(cancel|cancell|change|modify)\b/.test(text)) {
+  if (/\b(cancel|cancell|change|modify|iptal|degistir)\b/.test(text)) {
     return reply(
       "fallback",
       `This desk cannot change or cancel a stay. ${limits} Saved stays are listed on your account in this browser.`,
@@ -480,7 +525,7 @@ function roomDetailReply(room: Room): ConciergeReply {
   )
 }
 
-export function answerGuest(input: string): ConciergeReply {
+function answerInEnglish(input: string): ConciergeReply {
   const text = normalize(input)
   if (!text) {
     if (input.trim()) {
@@ -600,9 +645,17 @@ export function answerGuest(input: string): ConciergeReply {
       [{ label: "Reserve a room", href: "/book" }],
     )
   }
-  if (/\b(pay|payment|card|credit|visa|mastercard|invoice|refund|e-?mail|phone|telephone|whatsapp|cancel|cancell|change|modify)\b/.test(text)) {
+  if (/\b(pay|payment|card|credit|visa|mastercard|invoice|refund|e-?mail|eposta|phone|telephone|telefon|whatsapp|cancel|cancell|change|modify|iptal|odeme)\b/.test(text)) {
     return fallbackReply(text, mentioned)
   }
   if (isHelp(text)) return helpReply()
   return fallbackReply(text, mentioned)
+}
+
+export function answerGuest(input: string, locale: Locale = "en"): ConciergeReply {
+  return withLocale(answerInEnglish(input), locale)
+}
+
+export function conciergePromptsFor(locale: Locale = "en") {
+  return locale === "tr" ? turkishPrompts : conciergePrompts
 }

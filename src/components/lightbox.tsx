@@ -3,6 +3,7 @@
 import { ChevronLeft, ChevronRight, X } from "lucide-react"
 import Image from "next/image"
 import { useCallback, useEffect, useRef } from "react"
+import { useCopy } from "@/lib/i18n/use-locale"
 
 export type LightboxImage = { src: string; alt: string; caption?: string }
 
@@ -18,6 +19,7 @@ export function Lightbox({
   onClose: () => void
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null)
+  const copy = useCopy().photos
   const open = index !== null
   const count = images.length
 
@@ -51,7 +53,7 @@ export function Lightbox({
   return (
     <dialog
       ref={dialogRef}
-      aria-label="Photo viewer"
+      aria-label={copy.viewer}
       onClose={onClose}
       onClick={(event) => {
         if (event.target === dialogRef.current) onClose()
@@ -63,7 +65,7 @@ export function Lightbox({
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close photo viewer"
+            aria-label={copy.close}
             className="absolute top-4 right-4 z-10 grid size-11 place-items-center rounded-full bg-white/10 text-white outline-none hover:bg-white/20 focus-visible:ring-3 focus-visible:ring-white/60"
           >
             <X className="size-5" />
@@ -82,7 +84,7 @@ export function Lightbox({
             <button
               type="button"
               onClick={() => step(-1)}
-              aria-label="Previous photo"
+              aria-label={copy.previous}
               className="grid size-11 shrink-0 place-items-center rounded-full bg-white/10 outline-none hover:bg-white/20 focus-visible:ring-3 focus-visible:ring-white/60"
             >
               <ChevronLeft className="size-5" />
@@ -96,7 +98,7 @@ export function Lightbox({
             <button
               type="button"
               onClick={() => step(1)}
-              aria-label="Next photo"
+              aria-label={copy.next}
               className="grid size-11 shrink-0 place-items-center rounded-full bg-white/10 outline-none hover:bg-white/20 focus-visible:ring-3 focus-visible:ring-white/60"
             >
               <ChevronRight className="size-5" />

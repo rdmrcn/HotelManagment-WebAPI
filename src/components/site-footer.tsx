@@ -1,15 +1,10 @@
+"use client"
+
 import { Info } from "lucide-react"
 import Link from "next/link"
-import { AUTHOR, REPO_URL, house } from "@/lib/house"
-
-const explore = [
-  { href: "/rooms", label: "Rooms" },
-  { href: "/book", label: "Book a stay" },
-  { href: "/#house", label: "The house" },
-  { href: "/#gallery", label: "Gallery" },
-  { href: "/#location", label: "Location" },
-  { href: "/account", label: "Your account" },
-]
+import { contact, whatsappUrl } from "@/lib/contact"
+import { AUTHOR, house, REPO_URL } from "@/lib/house"
+import { useCopy, useLocale } from "@/lib/i18n/use-locale"
 
 function GithubMark() {
   return (
@@ -20,33 +15,41 @@ function GithubMark() {
 }
 
 export function SiteFooter() {
+  const locale = useLocale()
+  const copy = useCopy()
   const year = new Date().getFullYear()
+  const explore = [
+    { href: "/rooms", label: copy.nav.rooms },
+    { href: "/book", label: copy.footer.bookStay },
+    { href: "/contact", label: copy.nav.contact },
+    { href: "/#house", label: copy.nav.house },
+    { href: "/#gallery", label: copy.nav.gallery },
+    { href: "/#location", label: copy.nav.location },
+    { href: "/account", label: copy.footer.yourAccount },
+  ]
 
   return (
-    <footer className="mt-auto print:hidden bg-[#0b2238] text-white/80">
+    <footer className="mt-auto bg-[#0b2238] text-white/80 print:hidden">
       <div className="mx-auto grid w-full max-w-6xl gap-10 px-5 pt-14 pb-10 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
         <div>
           <p className="font-serif text-4xl text-white">Bosfor Hotels</p>
-          <p className="mt-4 max-w-sm text-sm leading-6">
-            A house hotel on a hillside street in Bebek, with eight room types. Half of them look over the
-            Bosphorus, the rest look at the street.
-          </p>
+          <p className="mt-4 max-w-sm text-sm leading-6">{copy.footer.blurb}</p>
         </div>
         <div>
-          <h2 className="font-sans text-xs font-medium tracking-[0.18em] text-white/60 uppercase">Visit</h2>
+          <h2 className="font-sans text-xs font-medium tracking-[0.18em] text-white/60 uppercase">{copy.footer.visit}</h2>
           <address className="mt-4 text-sm leading-6 not-italic">
-            Hillside street above the waterfront
+            {copy.footer.address}
             <br />
             {house.area}
           </address>
           <p className="mt-3 text-sm leading-6">
-            Check-in from {house.checkIn}
+            {copy.footer.checkIn} {house.checkIn}
             <br />
-            Check-out by {house.checkOut}
+            {copy.footer.checkOut} {house.checkOut}
           </p>
         </div>
-        <nav aria-label="Footer">
-          <h2 className="font-sans text-xs font-medium tracking-[0.18em] text-white/60 uppercase">Explore</h2>
+        <nav aria-label={copy.footer.explore}>
+          <h2 className="font-sans text-xs font-medium tracking-[0.18em] text-white/60 uppercase">{copy.footer.explore}</h2>
           <ul className="mt-4 grid gap-2 text-sm">
             {explore.map((link) => (
               <li key={link.href}>
@@ -58,46 +61,51 @@ export function SiteFooter() {
           </ul>
         </nav>
         <div>
-          <h2 className="font-sans text-xs font-medium tracking-[0.18em] text-white/60 uppercase">Contact and policies</h2>
+          <h2 className="font-sans text-xs font-medium tracking-[0.18em] text-white/60 uppercase">{copy.footer.policies}</h2>
           <ul className="mt-4 grid gap-2 text-sm leading-6">
             <li>
-              Questions? <Link href="/ask" className="text-white underline underline-offset-4">Ask the concierge</Link>
+              <a href={`tel:${contact.phoneTel}`} className="hover:text-white hover:underline">
+                {contact.phoneDisplay}
+              </a>
             </li>
-            <li>Rates are per room, per night, taxes included.</li>
-            <li>Demo checkout, no real charge. Bookings are saved in your browser only.</li>
-            <li>Cancel any saved stay from your account.</li>
+            <li>
+              <a href={`mailto:${contact.email}`} className="hover:text-white hover:underline">
+                {contact.email}
+              </a>
+            </li>
+            <li>
+              <a href={whatsappUrl(locale)} target="_blank" rel="noopener noreferrer" className="hover:text-white hover:underline">
+                WhatsApp
+              </a>
+            </li>
+            <li>
+              {copy.footer.questions}{" "}
+              <Link href="/ask" className="text-white underline underline-offset-4">
+                {copy.footer.ask}
+              </Link>
+            </li>
+            <li>{copy.footer.rates}</li>
+            <li>{copy.footer.demoCheckout}</li>
+            <li>{copy.footer.cancel}</li>
           </ul>
         </div>
       </div>
       <div className="border-t border-white/10">
-        <div className="mx-auto grid w-full max-w-6xl gap-4 px-5 py-6 pb-24 text-sm md:pb-6">
+        <div className="mx-auto grid w-full max-w-6xl gap-4 px-5 py-6 pb-28 text-sm md:pb-6">
           <p className="flex items-start gap-2 leading-6 text-white/90">
             <Info className="mt-1 size-4 shrink-0" aria-hidden />
-            <span>
-              <strong className="font-medium">Demo project, fictional brand.</strong> Bosfor Hotels is not a real
-              hotel. Nothing here is for sale, and no data leaves your browser.
-            </span>
+            <span>{copy.footer.disclaimer}</span>
           </p>
           <div className="flex flex-col gap-2 text-white/70 sm:flex-row sm:items-center sm:justify-between">
             <p>
-              © {year} Designed and built by{" "}
-              <a
-                href={AUTHOR.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium text-white underline underline-offset-4"
-              >
+              © {year} {copy.footer.designed}{" "}
+              <a href={AUTHOR.url} target="_blank" rel="noopener noreferrer" className="font-medium text-white underline underline-offset-4">
                 {AUTHOR.name}
               </a>
               .
             </p>
-            <a
-              href={REPO_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-white hover:underline"
-            >
-              <GithubMark /> Source on GitHub
+            <a href={REPO_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-white hover:underline">
+              <GithubMark /> {copy.footer.source}
             </a>
           </div>
         </div>

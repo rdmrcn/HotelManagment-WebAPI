@@ -1,10 +1,15 @@
+"use client"
+
+import { useCopy } from "@/lib/i18n/use-locale"
+
 /** Hillside cross-section: water at the foot of the slope, the house built into the hill, the street above it. */
 export function SideDiagram({ className }: { className?: string }) {
+  const copy = useCopy().diagram
   return (
     <svg
       viewBox="0 0 640 320"
       role="img"
-      aria-label="Cross-section of the hillside. The Bosphorus lies at the foot of the slope on the left. The house is built into the hill: its water-side rooms face downhill to the strait, and its city-side rooms face the street at the top of the hill on the right."
+      aria-label={copy.aria}
       className={className}
     >
       <defs>
@@ -58,13 +63,13 @@ export function SideDiagram({ className }: { className?: string }) {
       </g>
 
       <g fontFamily="var(--font-source-sans), system-ui, sans-serif">
-        <text x="20" y="48" fontSize="19" fontWeight="700" fill="#0b2238">Bosphorus side</text>
-        <text x="20" y="70" fontSize="14" fill="#32465a">Deluxe · Suite · Bosfor Suite</text>
-        <text x="20" y="90" fontSize="13" fill="#32465a">Downhill, facing the water</text>
-        <text x="372" y="34" fontSize="19" fontWeight="700" fill="#0b2238">City side</text>
-        <text x="372" y="54" fontSize="14" fill="#32465a">Standard · Queens · Kings</text>
-        <text x="512" y="132" fontSize="13" fill="#5b4a2a">Hillside street</text>
-        <text x="118" y="258" fontSize="13" fill="#dbe8f1">The Bosphorus</text>
+        <text x="20" y="48" fontSize="19" fontWeight="700" fill="#0b2238">{copy.bosphorus}</text>
+        <text x="20" y="70" fontSize="14" fill="#32465a">{copy.bosphorusRooms}</text>
+        <text x="20" y="90" fontSize="13" fill="#32465a">{copy.downhill}</text>
+        <text x="372" y="34" fontSize="19" fontWeight="700" fill="#0b2238">{copy.city}</text>
+        <text x="372" y="54" fontSize="14" fill="#32465a">{copy.cityRooms}</text>
+        <text x="512" y="132" fontSize="13" fill="#5b4a2a">{copy.street}</text>
+        <text x="118" y="258" fontSize="13" fill="#dbe8f1">{copy.water}</text>
       </g>
     </svg>
   )

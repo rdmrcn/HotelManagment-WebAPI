@@ -13,7 +13,10 @@ import { SideBadge } from "@/components/side-badge"
 import { PaymentFields, cardFieldId, demoCard, emptyCard } from "@/components/payment-fields"
 import { buttonVariants } from "@/components/ui/button"
 import { nextAvailableStay, stayAvailability } from "@/lib/availability"
-import { formatMoney, formatStayDate, nightLabel } from "@/lib/format"
+import { formatMoney, formatStayDate, guestLabel, nightLabel } from "@/lib/format"
+import { localizeMessage } from "@/lib/i18n/errors"
+import { roomFace } from "@/lib/i18n/room-face"
+import { useCopy, useLocale } from "@/lib/i18n/use-locale"
 import { getRoom, roomCover, rooms, type Room } from "@/lib/rooms"
 import { authPath, bookPath } from "@/lib/search"
 import { validateCard, type CardErrors, type CardField, type CardInput } from "@/lib/payment"
@@ -33,6 +36,10 @@ function BookingForm() {
   const searchParams = useSearchParams()
   const initialRoom = searchParams.get("room") ?? ""
   const today = useToday()
+  const locale = useLocale()
+  const pageCopy = useCopy()
+  const copy = pageCopy.booking
+  const dateCopy = pageCopy.dates
   const { status, guest, allBookings, payForBooking } = useAuth()
   const [checkIn, setCheckIn] = useState(searchParams.get("checkIn") ?? "")
   const [checkOut, setCheckOut] = useState(searchParams.get("checkOut") ?? "")
@@ -152,14 +159,19 @@ function BookingForm() {
     return (
       <div role="status" className="mx-auto max-w-xl rounded-3xl bg-card p-8 text-center ring-1 ring-foreground/10">
         <CheckCircle2 className="mx-auto size-8 text-primary" aria-hidden />
-        <h2 className="mt-3 text-3xl">Payment received</h2>
-        <p className="mt-2 text-sm text-muted-foreground">Opening confirmation {paidRef}…</p>
+        <h2 className="mt-3 text-3xl">{copy.received}</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {copy.opening} {paidRef}…
+        </p>
       </div>
     )
   }
 
-  const payLabel = quote?.ok && !selectedBlocked ? `Pay ${formatMoney(quote.total)} and confirm` : "Pay and confirm"
-  const confirmLabel = submitting ? "Processing payment…" : guest || !ready ? payLabel : "Sign in to pay"
+  const payLabel =
+    quote?.ok && !selectedBlocked
+      ? `${copy.payAmount} ${formatMoney(quote.total, locale)} ${copy.andConfirm}`
+      : copy.payAndConfirm
+  const confirmLabel = submitting ? copy.processing : guest || !ready ? payLabel : copy.signInToPay
 
   return (
     <form
@@ -173,7 +185,8 @@ function BookingForm() {
       <div className="grid gap-10">
         <section aria-labelledby="dates-heading" className="grid gap-4">
           <h2 id="dates-heading" className="text-2xl">
-            <span className="mr-2 text-primary">1.</span>Dates
+            <span className="mr-2 text-primary">1.</span>
+            {copy.dates}
           </h2>
           <DateRangePicker
             idPrefix="book"
@@ -188,15 +201,15 @@ function BookingForm() {
             }}
           />
           <div aria-live="polite" className="grid gap-2">
-            {dateError ? <Notice>{dateError}</Notice> : null}
-            {outOfWindow && windowText && !windowText.ok ? <Notice tone="info">{windowText.message}</Notice> : null}
-            {allSoldOut ? (
-              <Notice>Every room type is sold out for at least one night in this stay. Try nearby dates.</Notice>
+            {dateError ? <Notice>{localizeMessage(dateError, locale)}</Notice> : null}
+            {outOfWindow && windowText && !windowText.ok ? (
+              <Notice tone="info">{localizeMessage(windowText.message, locale)}</Notice>
             ) : null}
+            {allSoldOut ? <Notice>{copy.allSold}</Notice> : null}
           </div>
           <div className="grid max-w-xs gap-2">
             <label htmlFor="book-guests" className="text-sm leading-none font-medium">
-              Guests
+              {copy.guests}
             </label>
             <select
               id="book-guests"
@@ -206,13 +219,13 @@ function BookingForm() {
             >
               {Array.from({ length: maxGuests }, (_, index) => index + 1).map((count) => (
                 <option key={count} value={count}>
-                  {count === 1 ? "1 guest" : `${count} guests`}
+                  {guestLabel(count, locale)}
                 </option>
               ))}
             </select>
             {room ? (
               <p className="text-xs text-muted-foreground">
-                {room.name} sleeps up to {room.sleeps}.
+                {room.name} {copy.sleepsUpTo} {room.sleeps}.
               </p>
             ) : null}
           </div>
@@ -221,7 +234,8 @@ function BookingForm() {
         <section aria-labelledby="room-heading" className="grid gap-4">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <h2 id="room-heading" className="text-2xl">
-              <span className="mr-2 text-primary">2.</span>Room
+              <span className="mr-2 text-primary">2.</span>
+              {copy.room}
             </h2>
             <label className={cn("flex items-center gap-2 text-sm", !datesValid && "opacity-50")}>
               <input
@@ -231,15 +245,11 @@ function BookingForm() {
                 onChange={(event) => setHideSoldOut(event.target.checked)}
                 className="size-4 accent-[var(--primary)]"
               />
-              Hide sold-out rooms
+              {copy.hideSold}
             </label>
           </div>
-          {unknownRoom ? <Notice>That room is not at the hotel. Choose one below.</Notice> : null}
-          {!hasDates ? (
-            <p className="text-sm text-muted-foreground">
-              Add your dates to see exactly how many of each room are left. Until then, counts are for tonight.
-            </p>
-          ) : null}
+          {unknownRoom ? <Notice>{localizeMessage("That room is not at the hotel. Choose one below.", locale)}</Notice> : null}
+          {!hasDates ? <p className="text-sm text-muted-foreground">{copy.addDates}</p> : null}
           <ul className="grid gap-3">
             {shownRooms.map(({ room: item, result }) => (
               <li key={item.slug}>
@@ -261,11 +271,12 @@ function BookingForm() {
 
         <section aria-labelledby="payment-heading" className="grid max-w-xl gap-4">
           <h2 id="payment-heading" className="text-2xl">
-            <span className="mr-2 text-primary">3.</span>Payment
+            <span className="mr-2 text-primary">3.</span>
+            {copy.payment}
           </h2>
           {!ready ? (
             <div className="h-64 animate-pulse rounded-2xl bg-muted" role="status">
-              <span className="sr-only">Checking this browser for a saved account…</span>
+              <span className="sr-only">{copy.checking}</span>
             </div>
           ) : guest ? (
             <>
@@ -281,32 +292,29 @@ function BookingForm() {
                 }}
               />
               <div ref={paymentErrorRef} aria-live="assertive">
-                {paymentError ? <Notice>{paymentError}</Notice> : null}
+                {paymentError ? <Notice>{localizeMessage(paymentError, locale)}</Notice> : null}
               </div>
             </>
           ) : (
             <div className="rounded-2xl bg-card p-5 ring-1 ring-foreground/10">
               <p className="flex items-center gap-2 font-medium">
-                <CreditCard className="size-4 text-primary" aria-hidden /> Sign in to pay
+                <CreditCard className="size-4 text-primary" aria-hidden /> {copy.signInToPay}
               </p>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Demo checkout. No real charge. Use 4242 4242 4242 4242. You will sign in first, then come back to this
-                page with your dates and room.
-              </p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">{copy.signInBody}</p>
               <Link
                 href={authPath("/sign-in", returnTo)}
                 className={cn(buttonVariants(), "mt-4 h-11 rounded-full px-5")}
               >
-                Sign in to continue
+                {copy.signInContinue}
               </Link>
             </div>
           )}
         </section>
       </div>
 
-      <aside className="h-fit rounded-2xl bg-card p-5 ring-1 ring-foreground/10 lg:sticky lg:top-28" aria-labelledby="summary-heading">
+      <aside className="h-fit rounded-2xl bg-card p-5 ring-1 ring-foreground/10 lg:sticky lg:top-[var(--site-header-height)]" aria-labelledby="summary-heading">
         <h2 id="summary-heading" className="text-2xl">
-          Your stay
+          {copy.yourStay}
         </h2>
         {room ? (
           <div className="mt-4 flex gap-3">
@@ -316,43 +324,43 @@ function BookingForm() {
             <div className="min-w-0">
               <p className="font-serif text-xl leading-tight">{room.name}</p>
               <p className="mt-1 text-xs text-muted-foreground">
-                {room.bed} · {room.view}
+                {roomFace(room, locale).bed} · {roomFace(room, locale).view}
               </p>
             </div>
           </div>
         ) : (
-          <p className="mt-4 text-sm text-muted-foreground">No room selected yet.</p>
+          <p className="mt-4 text-sm text-muted-foreground">{copy.noRoom}</p>
         )}
         <dl className="mt-4 grid gap-2 text-sm leading-6" aria-live="polite">
           <div className="flex justify-between gap-4">
-            <dt className="text-muted-foreground">Check-in</dt>
-            <dd>{checkIn ? formatStayDate(checkIn) : "—"}</dd>
+            <dt className="text-muted-foreground">{dateCopy.checkIn}</dt>
+            <dd>{checkIn ? formatStayDate(checkIn, locale) : "—"}</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-muted-foreground">Check-out</dt>
-            <dd>{checkOut ? formatStayDate(checkOut) : "—"}</dd>
+            <dt className="text-muted-foreground">{dateCopy.checkOut}</dt>
+            <dd>{checkOut ? formatStayDate(checkOut, locale) : "—"}</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-muted-foreground">Guests</dt>
+            <dt className="text-muted-foreground">{copy.guests}</dt>
             <dd>{guests}</dd>
           </div>
           {quote?.ok && !selectedBlocked ? (
             <>
               <div className="flex justify-between gap-4">
                 <dt className="text-muted-foreground">
-                  {formatMoney(quote.nightlyRate)} × {nightLabel(quote.nights)}
+                  {formatMoney(quote.nightlyRate, locale)} × {nightLabel(quote.nights, locale)}
                 </dt>
-                <dd>{formatMoney(quote.total)}</dd>
+                <dd>{formatMoney(quote.total, locale)}</dd>
               </div>
               <div className="mt-1 flex items-baseline justify-between gap-4 border-t border-border pt-3">
-                <dt>Total, taxes included</dt>
-                <dd className="text-3xl">{formatMoney(quote.total)}</dd>
+                <dt>{copy.total}</dt>
+                <dd className="text-3xl">{formatMoney(quote.total, locale)}</dd>
               </div>
             </>
           ) : null}
         </dl>
         {!quote?.ok && !selectedBlocked ? (
-          <p className="mt-3 text-sm text-muted-foreground">The total appears once the dates are valid and a room is chosen.</p>
+          <p className="mt-3 text-sm text-muted-foreground">{copy.totalLater}</p>
         ) : null}
         {selected && datesValid && !selectedBlocked ? (
           <div className="mt-3">
@@ -361,7 +369,7 @@ function BookingForm() {
         ) : null}
         {selectedBlocked && selectedBlocked.reason === "sold-out" ? (
           <div className="mt-3 grid gap-2">
-            <Notice>{selectedBlocked.message}</Notice>
+            <Notice>{localizeMessage(selectedBlocked.message, locale)}</Notice>
             {suggestion ? (
               <button
                 type="button"
@@ -373,8 +381,8 @@ function BookingForm() {
               >
                 <CalendarClock className="size-4 shrink-0" aria-hidden />
                 <span>
-                  Next free for {nightLabel(nights || nightsBetween(checkIn, checkOut) || 1)}:{" "}
-                  {formatStayDate(suggestion.checkIn)} to {formatStayDate(suggestion.checkOut)}
+                  {copy.nextFree} {nightLabel(nights || nightsBetween(checkIn, checkOut) || 1, locale)}:{" "}
+                  {formatStayDate(suggestion.checkIn, locale)} {pageCopy.reserve.to} {formatStayDate(suggestion.checkOut, locale)}
                 </span>
               </button>
             ) : null}
@@ -384,18 +392,18 @@ function BookingForm() {
         <div className="mt-5 border-t border-border pt-5">
           {!ready ? (
             <div className="h-10 animate-pulse rounded-lg bg-muted" role="status">
-              <span className="sr-only">Checking this browser for a saved account…</span>
+              <span className="sr-only">{copy.checking}</span>
             </div>
           ) : guest ? (
             <p className="text-sm leading-6">
-              Signed in as <span className="font-medium">{guest.name}</span>
+              {copy.signedIn} <span className="font-medium">{guest.name}</span>
               <span className="block text-muted-foreground">{guest.email}</span>
             </p>
           ) : (
             <p className="text-sm leading-6">
-              You will sign in on the next step, with any email and a password of 6 characters or more.{" "}
+              {copy.signInNext}{" "}
               <Link href={authPath("/register", returnTo)} className="font-medium text-primary underline-offset-4 hover:underline">
-                Create an account
+                {copy.create}
               </Link>
             </p>
           )}
@@ -411,30 +419,27 @@ function BookingForm() {
         </button>
         {formError ? (
           <div ref={formErrorRef} className="mt-4">
-            <Notice>{formError}</Notice>
+            <Notice>{localizeMessage(formError, locale)}</Notice>
           </div>
         ) : null}
-        <p className="mt-3 text-xs leading-5 text-muted-foreground">
-          Demo checkout. No real charge. Use 4242 4242 4242 4242. Bosfor Hotels is fictional, and the booking stays in this
-          browser. The room is held only after the payment goes through.
-        </p>
+        <p className="mt-3 text-xs leading-5 text-muted-foreground">{copy.demoNote}</p>
       </aside>
 
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 px-5 py-3 backdrop-blur lg:hidden">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
           <div className="min-w-0">
             <p className="truncate text-xs text-muted-foreground">
-              {room ? room.name : "Choose a room"}
-              {quote?.ok ? ` · ${nightLabel(quote.nights)}` : ""}
+              {room ? room.name : copy.chooseRoom}
+              {quote?.ok ? ` · ${nightLabel(quote.nights, locale)}` : ""}
             </p>
-            <p className="text-2xl leading-tight">{quote?.ok && !selectedBlocked ? formatMoney(quote.total) : "—"}</p>
+            <p className="text-2xl leading-tight">{quote?.ok && !selectedBlocked ? formatMoney(quote.total, locale) : "—"}</p>
           </div>
           <button
             type="submit"
             className={cn(buttonVariants(), "h-12 shrink-0 rounded-full px-6 text-base")}
             disabled={submitting || Boolean(selectedBlocked)}
           >
-            {submitting ? "Paying…" : guest || !ready ? "Pay now" : "Sign in to pay"}
+            {submitting ? copy.paying : guest || !ready ? copy.payNow : copy.signInToPay}
           </button>
         </div>
       </div>
@@ -457,16 +462,19 @@ function RoomOption({
   checkOut: string
   onSelect: () => void
 }) {
+  const locale = useLocale()
+  const copy = useCopy().booking
+  const face = roomFace(room, locale)
   const quote = checkIn && checkOut ? quoteStay(room.nightlyRate, checkIn, checkOut) : null
   const price = (
     <>
-      <span className="block text-xl leading-none">{formatMoney(room.nightlyRate)}</span>
-      <span className="text-xs text-muted-foreground">per night</span>
+      <span className="block text-xl leading-none">{formatMoney(room.nightlyRate, locale)}</span>
+      <span className="text-xs text-muted-foreground">{copy.perNight}</span>
     </>
   )
   const total = quote?.ok ? (
     <span className="block text-xs text-muted-foreground">
-      {nightLabel(quote.nights)} · {formatMoney(quote.total)}
+      {nightLabel(quote.nights, locale)} · {formatMoney(quote.total, locale)}
     </span>
   ) : null
   return (
@@ -498,19 +506,19 @@ function RoomOption({
           <SideBadge side={room.side} className="h-6 text-[0.7rem]" />
         </span>
         <span className="mt-1 block text-sm text-muted-foreground">
-          {room.size} · {room.bed} · sleeps {room.sleeps}
+          {room.size} · {face.bed} · {locale === "tr" ? `${room.sleeps} kişi` : `sleeps ${room.sleeps}`}
         </span>
         <span className="mt-2 flex flex-wrap items-center gap-2 text-sm">
           {soldOut ? (
             <span className="inline-flex h-7 items-center rounded-full bg-muted px-2.5 text-xs font-medium text-muted-foreground ring-1 ring-foreground/10">
-              Sold out for these dates
+              {copy.soldForDates}
             </span>
           ) : (
             <LeftBadge slug={room.slug} checkIn={checkIn} checkOut={checkOut} />
           )}
           {selected ? (
             <span className="inline-flex items-center gap-1 text-sm font-medium text-primary">
-              <CheckCircle2 className="size-4" aria-hidden /> Selected
+              <CheckCircle2 className="size-4" aria-hidden /> {copy.selected}
             </span>
           ) : null}
         </span>

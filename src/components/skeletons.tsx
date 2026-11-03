@@ -1,13 +1,19 @@
+"use client"
+
+import { useCopy } from "@/lib/i18n/use-locale"
+
 export function AuthSkeleton() {
+  const copy = useCopy().loading
   return (
     <div className="mx-auto w-full max-w-md" role="status">
       <div className="h-[30rem] animate-pulse rounded-3xl bg-muted" />
-      <span className="sr-only">Loading…</span>
+      <span className="sr-only">{copy.auth}</span>
     </div>
   )
 }
 
 export function BookingSkeleton() {
+  const copy = useCopy().loading
   return (
     <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_360px]" role="status">
       <div className="grid gap-4">
@@ -19,7 +25,7 @@ export function BookingSkeleton() {
         ))}
       </div>
       <div className="h-80 animate-pulse rounded-2xl bg-muted" />
-      <span className="sr-only">Loading the booking desk…</span>
+      <span className="sr-only">{copy.booking}</span>
     </div>
   )
 }

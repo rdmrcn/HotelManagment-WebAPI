@@ -2,8 +2,17 @@
 
 import { Flame } from "lucide-react"
 import { leftLabel, leftTone } from "@/lib/availability"
+import { useLocale } from "@/lib/i18n/use-locale"
 import { useRoomsLeft } from "@/lib/use-availability"
 import { cn } from "cn"
+
+function roomsLeftText(left: number, locale: "en" | "tr") {
+  if (locale === "en") return leftLabel(left)
+  if (left <= 0) return "Dolu"
+  if (left === 1) return "Son 1 oda"
+  if (left === 2) return "Son 2 oda"
+  return `${left} oda kaldı`
+}
 
 const tones = {
   plenty: "bg-emerald-50 text-emerald-900 ring-emerald-900/15",
@@ -26,6 +35,7 @@ export function LeftBadge({
   className?: string
   showScope?: boolean
 }) {
+  const locale = useLocale()
   const state = useRoomsLeft(slug, checkIn, checkOut)
 
   if (!state.ready) {
@@ -41,9 +51,17 @@ export function LeftBadge({
       )}
     >
       {tone === "last" ? <Flame className="size-3.5" aria-hidden /> : null}
-      <span>{leftLabel(state.left)}</span>
+      <span>{roomsLeftText(state.left, locale)}</span>
       {showScope && state.left > 0 ? (
-        <span className="font-normal opacity-75">{state.scope === "stay" ? "for your dates" : "tonight"}</span>
+        <span className="font-normal opacity-75">
+          {state.scope === "stay"
+            ? locale === "tr"
+              ? "tarihleriniz için"
+              : "for your dates"
+            : locale === "tr"
+              ? "bu gece"
+              : "tonight"}
+        </span>
       ) : null}
     </span>
   )

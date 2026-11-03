@@ -9,12 +9,17 @@ import { Notice } from "@/components/notice"
 import { PageHeader } from "@/components/page-header"
 import { SideBadge } from "@/components/side-badge"
 import { Button, buttonVariants } from "@/components/ui/button"
-import { formatMoney, formatStayDate, nightLabel } from "@/lib/format"
+import { formatMoney, formatStayDate, guestLabel, nightLabel } from "@/lib/format"
+import { localizeMessage } from "@/lib/i18n/errors"
+import { useCopy, useLocale } from "@/lib/i18n/use-locale"
 import { getRoom, roomCover } from "@/lib/rooms"
 import { cn } from "cn"
 
 export function AccountPanel() {
   const { status, guest, bookings, storageError, reload, signOut, removeBooking } = useAuth()
+  const locale = useLocale()
+  const copy = useCopy().accountPanel
+  const roomWord = useCopy().receipt.roomFallback
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -23,7 +28,7 @@ export function AccountPanel() {
       <div role="status" className="grid gap-6">
         <div className="h-28 max-w-xl animate-pulse rounded-2xl bg-muted" />
         <div className="h-44 animate-pulse rounded-2xl bg-muted" />
-        <span className="sr-only">Checking this browser for a saved account…</span>
+        <span className="sr-only">{copy.checking}</span>
       </div>
     )
   }
@@ -32,14 +37,14 @@ export function AccountPanel() {
     return (
       <div className="max-w-xl">
         <PageHeader
-          eyebrow="Account"
-          title="We could not read saved stays"
-          lede="The booking list lives in this browser. Site data may be blocked, or an older save could not be read."
+          eyebrow={copy.eyebrow}
+          title={copy.unreadableTitle}
+          lede={copy.unreadableLede}
         />
         <div className="mt-6 grid gap-4">
-          <Notice>{storageError}</Notice>
+          <Notice>{localizeMessage(storageError, locale)}</Notice>
           <Button type="button" className="h-11 w-fit rounded-full px-5" onClick={reload}>
-            Try again
+            {copy.tryAgain}
           </Button>
         </div>
       </div>
@@ -50,16 +55,16 @@ export function AccountPanel() {
     return (
       <div className="max-w-xl">
         <PageHeader
-          eyebrow="Account"
-          title="Sign in to see your stays"
-          lede="Reservations saved in this browser appear here after you sign in. Any email works on this demo; a new email creates the account."
+          eyebrow={copy.eyebrow}
+          title={copy.signedOutTitle}
+          lede={copy.signedOutLede}
         />
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <Link href="/sign-in" className={cn(buttonVariants(), "h-11 rounded-full px-5")}>
-            Sign in
+            {copy.signIn}
           </Link>
           <Link href="/register" className={cn(buttonVariants({ variant: "outline" }), "h-11 rounded-full px-5")}>
-            Create an account
+            {copy.create}
           </Link>
         </div>
       </div>
@@ -74,37 +79,35 @@ export function AccountPanel() {
             <UserRound className="size-6" aria-hidden />
           </span>
           <div className="min-w-0">
-            <p className="text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase">Signed in</p>
+            <p className="text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase">{copy.signedIn}</p>
             <h1 className="truncate text-3xl md:text-4xl">{guest.name}</h1>
             <p className="truncate text-sm text-muted-foreground">{guest.email}</p>
           </div>
         </div>
         <Button type="button" variant="outline" className="h-11 rounded-full px-5" onClick={signOut}>
-          <LogOut aria-hidden /> Sign out
+          <LogOut aria-hidden /> {copy.signOut}
         </Button>
       </div>
 
       <div className="mt-10 flex items-end justify-between gap-4">
-        <h2 className="text-3xl">Your stays</h2>
+        <h2 className="text-3xl">{copy.stays}</h2>
         <Link href="/book" className={cn(buttonVariants({ variant: "outline" }), "h-10 rounded-full px-4")}>
-          New booking
+          {copy.newBooking}
         </Link>
       </div>
       {error ? (
         <div className="mt-4">
-          <Notice>{error}</Notice>
+          <Notice>{localizeMessage(error, locale)}</Notice>
         </div>
       ) : null}
 
       {bookings.length === 0 ? (
         <div className="mt-6 max-w-xl rounded-2xl border border-dashed border-border bg-card p-6">
           <CalendarDays className="size-6 text-muted-foreground" aria-hidden />
-          <h3 className="mt-3 text-2xl">No stays yet</h3>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            You have no booking on this account. Choose dates and a room, and the confirmation will show up here.
-          </p>
+          <h3 className="mt-3 text-2xl">{copy.emptyTitle}</h3>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">{copy.emptyBody}</p>
           <Link href="/book" className={cn(buttonVariants(), "mt-5 h-11 rounded-full px-5")}>
-            Reserve a room
+            {copy.reserve}
           </Link>
         </div>
       ) : (
@@ -125,31 +128,30 @@ export function AccountPanel() {
                     </p>
                     {room ? <SideBadge side={room.side} className="h-6 text-[0.7rem]" /> : null}
                   </div>
-                  <h3 className="mt-1 text-2xl">{room?.name ?? "Room"}</h3>
+                  <h3 className="mt-1 text-2xl">{room?.name ?? roomWord}</h3>
                   <p className="mt-2 text-sm leading-6">
-                    {formatStayDate(booking.checkIn)} to {formatStayDate(booking.checkOut)}
-                    <span className="text-muted-foreground"> · {nightLabel(booking.nights)}</span>
+                    {formatStayDate(booking.checkIn, locale)} {copy.to} {formatStayDate(booking.checkOut, locale)}
+                    <span className="text-muted-foreground"> · {nightLabel(booking.nights, locale)}</span>
                   </p>
                   <p className="mt-1 text-sm">
-                    {formatMoney(booking.nightlyRate)} a night · {formatMoney(booking.total)} total
-                    <span className="text-muted-foreground">
-                      {" "}
-                      · {booking.guests === 1 ? "1 guest" : `${booking.guests} guests`}
-                    </span>
+                    {formatMoney(booking.nightlyRate, locale)} {copy.aNight} · {formatMoney(booking.total, locale)} {copy.total}
+                    <span className="text-muted-foreground"> · {guestLabel(booking.guests, locale)}</span>
                   </p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    {booking.payment ? `Paid with ${booking.payment.brand} ending ${booking.payment.last4}` : "Payment not recorded"}
+                    {booking.payment
+                      ? `${copy.paidWith} ${booking.payment.brand} ${copy.ending} ${booking.payment.last4}`
+                      : copy.notRecorded}
                   </p>
                   <div className="mt-4 flex flex-wrap items-center gap-2">
                     <Link
                       href={`/receipt?ref=${encodeURIComponent(booking.confirmationCode)}`}
                       className={cn(buttonVariants({ variant: "outline" }), "h-9 rounded-full px-4")}
                     >
-                      <FileText aria-hidden /> Receipt
+                      <FileText aria-hidden /> {copy.receipt}
                     </Link>
                     {confirmingId === booking.id ? (
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-sm">Cancel this stay?</span>
+                        <span className="text-sm">{copy.cancelAsk}</span>
                         <Button
                           type="button"
                           variant="destructive"
@@ -160,10 +162,10 @@ export function AccountPanel() {
                             setError(result.ok ? null : result.error)
                           }}
                         >
-                          Yes, cancel it
+                          {copy.cancelYes}
                         </Button>
                         <Button type="button" variant="outline" className="h-9 rounded-full px-4" onClick={() => setConfirmingId(null)}>
-                          Keep it
+                          {copy.keep}
                         </Button>
                       </div>
                     ) : (
@@ -173,7 +175,7 @@ export function AccountPanel() {
                         className="h-9 rounded-full px-3 text-muted-foreground"
                         onClick={() => setConfirmingId(booking.id)}
                       >
-                        <Trash2 aria-hidden /> Cancel stay
+                        <Trash2 aria-hidden /> {copy.cancel}
                       </Button>
                     )}
                   </div>

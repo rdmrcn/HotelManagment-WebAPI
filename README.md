@@ -7,6 +7,16 @@ A portfolio demo of a hotel booking site: a fictional house hotel on a hillside 
 
 > Demo project, fictional brand. Bosfor Hotels is not a real hotel, nothing is for sale, checkout is a demo with no real charge, and no data leaves the browser. Reviews are sample text.
 
+## What this demonstrates
+
+I built this as a sample I can show a small hotel or a pension, and also put on my CV and LinkedIn. It is a static Next.js site on GitHub Pages. There is no server and no database. Accounts, bookings and contact messages stay in the browser.
+
+The site is in English and Turkish. The TR/EN control sits in the header and the choice is saved, so the next visit opens in the same language. English is the default, because that is what most people see when they open the link from a CV.
+
+A small hotel usually wants a phone number, an email and WhatsApp on the page. Those are in the header, and the WhatsApp button opens a chat with a short greeting in the language you are reading. The contact page takes a name, an email, a message and optional dates, saves that note in the browser, and shows a clear success message. The phone number and the email are fake, on purpose. The brand is fictional.
+
+Checkout is a demo. The test card is 4242 4242 4242 4242 and nothing is charged. Availability covers the next 60 days and changes when you pick dates. The concierge answers common questions in the language you picked.
+
 ## Screenshots
 
 | | Desktop | Mobile |
@@ -108,7 +118,7 @@ Open [http://127.0.0.1:43123/HotelManagment-WebAPI/](http://127.0.0.1:43123/Hote
 | `npm run build` | Static export to `out/` |
 | `npm run lint` | ESLint |
 | `npm run typecheck` | `next typegen` then `tsc --noEmit` |
-| `npm test` | Vitest unit tests (auth, password hashing, availability, payment and checkout, concierge) and the scripted concierge check |
+| `npm test` | Vitest unit tests (auth, password hashing, availability, payment and checkout, concierge, language switch, contact inquiries) and the scripted concierge check |
 | `npm run check` | Lint, typecheck and tests |
 
 The Pages workflow (`.github/workflows/pages.yml`) runs lint, typecheck and tests before it builds and deploys, and also runs them on pull requests.

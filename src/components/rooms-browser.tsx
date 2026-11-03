@@ -8,7 +8,10 @@ import { Notice } from "@/components/notice"
 import { RoomCard } from "@/components/room-card"
 import { Button } from "@/components/ui/button"
 import { nightAvailability, stayAvailability, windowMessage } from "@/lib/availability"
-import { rooms, sideInfo, type RoomSide } from "@/lib/rooms"
+import { localizeMessage } from "@/lib/i18n/errors"
+import { sideFace } from "@/lib/i18n/room-face"
+import { useCopy, useLocale } from "@/lib/i18n/use-locale"
+import { rooms, type RoomSide } from "@/lib/rooms"
 import { validateStay } from "@/lib/stay"
 import { useToday } from "@/lib/use-today"
 import { useUrlSearch } from "@/lib/use-url-search"
@@ -16,12 +19,6 @@ import { cn } from "cn"
 
 type SideFilter = "all" | RoomSide
 type Sort = "price-asc" | "price-desc" | "size" | "left"
-
-const sideOptions: { value: SideFilter; label: string }[] = [
-  { value: "all", label: "All rooms" },
-  { value: "bosphorus", label: sideInfo.bosphorus.label },
-  { value: "city", label: sideInfo.city.label },
-]
 
 export function RoomsBrowser() {
   const search = useUrlSearch()
@@ -37,7 +34,14 @@ export function RoomsBrowser() {
 
 function RoomsBrowserView({ initialCheckIn, initialCheckOut }: { initialCheckIn: string; initialCheckOut: string }) {
   const today = useToday()
+  const locale = useLocale()
+  const copy = useCopy().roomsBrowser
   const { status, allBookings } = useAuth()
+  const sideOptions: { value: SideFilter; label: string }[] = [
+    { value: "all", label: copy.all },
+    { value: "bosphorus", label: sideFace("bosphorus", locale).label },
+    { value: "city", label: sideFace("city", locale).label },
+  ]
   const [checkIn, setCheckIn] = useState(initialCheckIn)
   const [checkOut, setCheckOut] = useState(initialCheckOut)
   const [side, setSide] = useState<SideFilter>("all")
@@ -73,7 +77,7 @@ function RoomsBrowserView({ initialCheckIn, initialCheckOut }: { initialCheckIn:
 
   return (
     <div>
-      <div className="z-30 -mx-5 border-b border-border bg-background/95 px-5 py-3 backdrop-blur lg:sticky lg:top-20">
+      <div className="z-30 -mx-5 border-b border-border bg-background/95 px-5 py-3 backdrop-blur lg:sticky lg:top-[var(--site-header-height)]">
         <div className="grid gap-3 lg:grid-cols-[minmax(0,26rem)_1fr] lg:items-center">
           <DateRangePicker
             idPrefix="rooms"
@@ -85,7 +89,7 @@ function RoomsBrowserView({ initialCheckIn, initialCheckOut }: { initialCheckIn:
             }}
           />
           <div className="flex flex-wrap items-center gap-2 lg:justify-end">
-            <div role="group" aria-label="Filter by side of the house" className="flex flex-wrap gap-1.5">
+            <div role="group" aria-label={copy.filter} className="flex flex-wrap gap-1.5">
               {sideOptions.map((option) => (
                 <button
                   key={option.value}
@@ -104,16 +108,17 @@ function RoomsBrowserView({ initialCheckIn, initialCheckOut }: { initialCheckIn:
               ))}
             </div>
             <label className="flex h-10 items-center gap-2 text-sm">
-              <span className="text-muted-foreground">Sort</span>
+              <span className="text-muted-foreground">{copy.sort}</span>
               <select
                 value={sort}
                 onChange={(event) => setSort(event.target.value as Sort)}
+                aria-label={copy.sort}
                 className="h-10 rounded-full border border-input bg-background px-3 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
               >
-                <option value="price-asc">Price, low to high</option>
-                <option value="price-desc">Price, high to low</option>
-                <option value="size">Largest first</option>
-                <option value="left">Most rooms left</option>
+                <option value="price-asc">{copy.priceAsc}</option>
+                <option value="price-desc">{copy.priceDesc}</option>
+                <option value="size">{copy.largest}</option>
+                <option value="left">{copy.mostLeft}</option>
               </select>
             </label>
             <label className={cn("flex h-10 items-center gap-2 text-sm", !validDates && "opacity-50")}>
@@ -124,21 +129,21 @@ function RoomsBrowserView({ initialCheckIn, initialCheckOut }: { initialCheckIn:
                 onChange={(event) => setOnlyAvailable(event.target.checked)}
                 className="size-4 accent-[var(--primary)]"
               />
-              Only available
+              {copy.onlyAvailable}
             </label>
           </div>
         </div>
       </div>
 
       <div className="mt-6 grid gap-3" aria-live="polite">
-        {dateError ? <Notice>{dateError}</Notice> : null}
-        {outOfWindow ? <Notice tone="info">{windowMessage(today)}</Notice> : null}
+        {dateError ? <Notice>{localizeMessage(dateError, locale)}</Notice> : null}
+        {outOfWindow ? <Notice tone="info">{localizeMessage(windowMessage(today), locale)}</Notice> : null}
         {!ready ? (
-          <p className="text-sm text-muted-foreground">Loading rooms…</p>
+          <p className="text-sm text-muted-foreground">{copy.loading}</p>
         ) : (
           <p className="text-sm text-muted-foreground">
-            {visible.length} {visible.length === 1 ? "room type" : "room types"}
-            {validDates && !outOfWindow ? " · availability for your dates" : " · availability shown for tonight"}
+            {visible.length} {visible.length === 1 ? copy.oneType : copy.manyTypes}
+            {validDates && !outOfWindow ? ` · ${copy.forDates}` : ` · ${copy.tonight}`}
           </p>
         )}
       </div>
@@ -146,13 +151,10 @@ function RoomsBrowserView({ initialCheckIn, initialCheckOut }: { initialCheckIn:
       {visible.length === 0 ? (
         <div className="mt-6 grid place-items-center gap-3 rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
           <SearchX className="size-8 text-muted-foreground" aria-hidden />
-          <h2 className="text-2xl">Nothing free on those dates</h2>
-          <p className="max-w-md text-sm leading-6 text-muted-foreground">
-            Every room type is sold out for at least one night in this stay. Try shifting the dates by a day or two, or
-            show all rooms to see what each one is doing.
-          </p>
+          <h2 className="text-2xl">{copy.emptyTitle}</h2>
+          <p className="max-w-md text-sm leading-6 text-muted-foreground">{copy.emptyBody}</p>
           <Button type="button" variant="outline" className="h-11 rounded-full px-5" onClick={() => setOnlyAvailable(false)}>
-            Show all rooms
+            {copy.showAll}
           </Button>
         </div>
       ) : (

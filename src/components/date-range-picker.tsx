@@ -5,13 +5,16 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { useAuth } from "@/components/auth-provider"
 import { BOOKING_WINDOW_DAYS, isDayFull, lastBookableCheckIn, lastBookableCheckOut } from "@/lib/availability"
 import { addMonths, firstOfMonth, longDate, monthGrid, monthLabel, shortDate } from "@/lib/calendar"
-import { formatStayDate } from "@/lib/format"
+import { formatStayDate, nightLabel } from "@/lib/format"
+import { useLocale } from "@/lib/i18n/use-locale"
+import { useCopy } from "@/lib/i18n/use-locale"
 import { addDays } from "@/lib/stay"
 import { useToday } from "@/lib/use-today"
 import { cn } from "cn"
 
 const MAX_NIGHTS = 28
-const weekdays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
+
+type DayReason = "" | "past" | "beyond" | "over28" | "afterSold" | "checkoutOnly" | "soldOut"
 
 type Props = {
   idPrefix: string
@@ -36,6 +39,8 @@ export function DateRangePicker({
   tone = "light",
 }: Props) {
   const today = useToday()
+  const locale = useLocale()
+  const dates = useCopy().dates
   const { allBookings } = useAuth()
   const [open, setOpen] = useState(false)
   const [picking, setPicking] = useState<"in" | "out">("in")
@@ -61,19 +66,29 @@ export function DateRangePicker({
     return ""
   }, [today, checkIn, picking, roomSlug, allBookings, lastIn])
 
-  function dayState(date: string) {
+  function dayState(date: string): { disabled: boolean; reason: DayReason } {
     if (!today) return { disabled: true, reason: "" }
-    if (date < today) return { disabled: true, reason: "in the past" }
-    if (date > lastOut) return { disabled: true, reason: `beyond the ${BOOKING_WINDOW_DAYS} day calendar` }
+    if (date < today) return { disabled: true, reason: "past" }
+    if (date > lastOut) return { disabled: true, reason: "beyond" }
     const choosingOut = picking === "out" && checkIn !== "" && date > checkIn
     if (choosingOut) {
-      if (date > addDays(checkIn, MAX_NIGHTS)) return { disabled: true, reason: "over 28 nights" }
-      if (firstSoldOut && date > firstSoldOut) return { disabled: true, reason: "after a sold-out night" }
+      if (date > addDays(checkIn, MAX_NIGHTS)) return { disabled: true, reason: "over28" }
+      if (firstSoldOut && date > firstSoldOut) return { disabled: true, reason: "afterSold" }
       return { disabled: false, reason: "" }
     }
-    if (date > lastIn) return { disabled: true, reason: "check-out only" }
-    if (isDayFull(date, roomSlug, allBookings)) return { disabled: true, reason: "sold out" }
+    if (date > lastIn) return { disabled: true, reason: "checkoutOnly" }
+    if (isDayFull(date, roomSlug, allBookings)) return { disabled: true, reason: "soldOut" }
     return { disabled: false, reason: "" }
+  }
+
+  function reasonText(reason: DayReason) {
+    if (reason === "beyond") {
+      return locale === "tr"
+        ? `${BOOKING_WINDOW_DAYS} günlük takvimin dışında`
+        : `beyond the ${BOOKING_WINDOW_DAYS} day calendar`
+    }
+    if (!reason) return ""
+    return dates[reason]
   }
 
   function openPicker(which: "in" | "out") {
@@ -178,10 +193,10 @@ export function DateRangePicker({
           onClick={() => (open && picking === "in" ? close(false) : openPicker("in"))}
           className={cn(fieldBase, fieldTone, open && picking === "in" && "ring-2 ring-primary")}
         >
-          <span className="text-[0.7rem] font-medium tracking-[0.14em] text-muted-foreground uppercase">Check-in</span>
+          <span className="text-[0.7rem] font-medium tracking-[0.14em] text-muted-foreground uppercase">{dates.checkIn}</span>
           <span className={cn("mt-0.5 flex items-center gap-2 text-sm", !checkIn && "text-muted-foreground")}>
             <CalendarDays className="size-4 shrink-0 text-primary" aria-hidden />
-            <span className="truncate">{checkIn ? shortDate(checkIn) : "Add date"}</span>
+            <span className="truncate">{checkIn ? shortDate(checkIn, locale) : dates.add}</span>
           </span>
         </button>
         <button
@@ -195,10 +210,10 @@ export function DateRangePicker({
           onClick={() => (open && picking === "out" ? close(false) : openPicker("out"))}
           className={cn(fieldBase, fieldTone, open && picking === "out" && "ring-2 ring-primary")}
         >
-          <span className="text-[0.7rem] font-medium tracking-[0.14em] text-muted-foreground uppercase">Check-out</span>
+          <span className="text-[0.7rem] font-medium tracking-[0.14em] text-muted-foreground uppercase">{dates.checkOut}</span>
           <span className={cn("mt-0.5 flex items-center gap-2 text-sm", !checkOut && "text-muted-foreground")}>
             <CalendarDays className="size-4 shrink-0 text-primary" aria-hidden />
-            <span className="truncate">{checkOut ? shortDate(checkOut) : "Add date"}</span>
+            <span className="truncate">{checkOut ? shortDate(checkOut, locale) : dates.add}</span>
           </span>
         </button>
       </div>
@@ -209,7 +224,7 @@ export function DateRangePicker({
           <div
             ref={popoverRef}
             role="dialog"
-            aria-label="Choose your dates"
+            aria-label={dates.dialog}
             className={cn(
               "fixed inset-x-0 bottom-0 z-50 max-h-[90dvh] overflow-y-auto rounded-t-3xl bg-card p-4 text-foreground shadow-2xl ring-1 ring-foreground/10 md:absolute md:inset-x-auto md:top-full md:bottom-auto md:left-0 md:mt-2 md:max-h-none md:rounded-2xl md:p-5",
               months === 2 ? "md:w-[43rem]" : "md:w-[21.5rem]",
@@ -217,11 +232,11 @@ export function DateRangePicker({
           >
             <div className="flex items-center justify-between gap-3 pb-3">
               <p className="text-sm font-medium" aria-live="polite">
-                {picking === "in" || !checkIn ? "Choose your check-in" : "Now choose your check-out"}
+                {picking === "in" || !checkIn ? dates.chooseIn : dates.chooseOut}
               </p>
               <button
                 type="button"
-                aria-label="Close calendar"
+                aria-label={dates.close}
                 onClick={() => close()}
                 className="grid size-9 place-items-center rounded-full text-muted-foreground outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 md:hidden"
               >
@@ -236,7 +251,7 @@ export function DateRangePicker({
                       {index === 0 ? (
                         <button
                           type="button"
-                          aria-label="Previous month"
+                          aria-label={dates.previous}
                           disabled={!minMonth || month <= minMonth}
                           onClick={() => setVisibleMonth(addMonths(month, -1))}
                           className="grid size-9 place-items-center rounded-full outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-30 disabled:hover:bg-transparent"
@@ -246,11 +261,11 @@ export function DateRangePicker({
                       ) : (
                         <span className="size-9" />
                       )}
-                      <p className="font-serif text-xl">{monthLabel(month)}</p>
+                      <p className="font-serif text-xl">{monthLabel(month, locale)}</p>
                       {index === (months === 2 ? 1 : 0) || (index === 0 && months === 2) ? (
                         <button
                           type="button"
-                          aria-label="Next month"
+                          aria-label={dates.next}
                           disabled={!maxMonth || addMonths(visibleMonth, months - 1) >= maxMonth}
                           onClick={() => setVisibleMonth(addMonths(visibleMonth, 1))}
                           className={cn(
@@ -264,8 +279,8 @@ export function DateRangePicker({
                         <span className="size-9" />
                       )}
                     </div>
-                    <div role="grid" aria-label={monthLabel(month)} className="grid grid-cols-7 gap-y-1">
-                      {weekdays.map((day) => (
+                    <div role="grid" aria-label={monthLabel(month, locale)} className="grid grid-cols-7 gap-y-1">
+                      {dates.weekdays.map((day) => (
                         <div
                           key={day}
                           role="columnheader"
@@ -280,10 +295,10 @@ export function DateRangePicker({
                         const isStart = date === checkIn
                         const isEnd = date === checkOut
                         const inRange = checkIn && checkOut && date > checkIn && date < checkOut
-                        const soldOut = state.reason === "sold out"
-                        const label = `${longDate(date)}${state.disabled ? `, unavailable: ${state.reason}` : ""}${
-                          isStart ? ", check-in" : ""
-                        }${isEnd ? ", check-out" : ""}`
+                        const soldOut = state.reason === "soldOut"
+                        const label = `${longDate(date, locale)}${state.disabled ? `, ${dates.unavailable}: ${reasonText(state.reason)}` : ""}${
+                          isStart ? `, ${dates.checkInMark}` : ""
+                        }${isEnd ? `, ${dates.checkOutMark}` : ""}`
                         return (
                           <div
                             key={date}
@@ -326,9 +341,10 @@ export function DateRangePicker({
             </div>
             <div className="mt-4 flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-xs leading-5 text-muted-foreground">
-                {roomSlug ? "Struck-through nights are sold out for this room. " : ""}
-                Booking opens {BOOKING_WINDOW_DAYS} days ahead{lastIn ? `, through ${formatStayDate(lastIn)}` : ""}.
-                {nights > 0 ? ` ${nights} ${nights === 1 ? "night" : "nights"} selected.` : ""}
+                {roomSlug ? `${dates.struck} ` : ""}
+                {dates.opens} {BOOKING_WINDOW_DAYS} {dates.daysAhead}
+                {lastIn ? `, ${dates.through} ${formatStayDate(lastIn, locale)}` : ""}.
+                {nights > 0 ? ` ${nightLabel(nights, locale)} ${dates.selected}.` : ""}
               </p>
               <div className="flex shrink-0 gap-2">
                 <button
@@ -339,14 +355,14 @@ export function DateRangePicker({
                   }}
                   className="h-10 rounded-full px-4 text-sm text-muted-foreground outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50"
                 >
-                  Clear
+                  {dates.clear}
                 </button>
                 <button
                   type="button"
                   onClick={() => close()}
                   className="h-10 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                 >
-                  Done
+                  {dates.done}
                 </button>
               </div>
             </div>

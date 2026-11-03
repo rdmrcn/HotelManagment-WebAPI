@@ -1,8 +1,13 @@
+"use client"
+
 import { Building2, Waves } from "lucide-react"
-import { sideInfo, type RoomSide } from "@/lib/rooms"
+import { sideFace } from "@/lib/i18n/room-face"
+import { useLocale } from "@/lib/i18n/use-locale"
+import type { RoomSide } from "@/lib/rooms"
 import { cn } from "cn"
 
 export function SideBadge({ side, className }: { side: RoomSide; className?: string }) {
+  const locale = useLocale()
   const Icon = side === "bosphorus" ? Waves : Building2
   return (
     <span
@@ -13,7 +18,7 @@ export function SideBadge({ side, className }: { side: RoomSide; className?: str
       )}
     >
       <Icon className="size-3.5" aria-hidden />
-      {sideInfo[side].badge}
+      {sideFace(side, locale).badge}
     </span>
   )
 }

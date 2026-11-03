@@ -10,6 +10,8 @@ import { Notice } from "@/components/notice"
 import { buttonVariants } from "@/components/ui/button"
 import { nextAvailableStay } from "@/lib/availability"
 import { formatMoney, formatStayDate, nightLabel } from "@/lib/format"
+import { localizeMessage } from "@/lib/i18n/errors"
+import { useCopy, useLocale } from "@/lib/i18n/use-locale"
 import type { Room } from "@/lib/rooms"
 import { bookPath } from "@/lib/search"
 import { nightsBetween, quoteStay } from "@/lib/stay"
@@ -20,6 +22,8 @@ import { cn } from "cn"
 export function ReservePanel({ room }: { room: Room }) {
   const router = useRouter()
   const today = useToday()
+  const locale = useLocale()
+  const copy = useCopy().reserve
   const { allBookings } = useAuth()
   const [checkIn, setCheckIn] = useState("")
   const [checkOut, setCheckOut] = useState("")
@@ -52,15 +56,15 @@ export function ReservePanel({ room }: { room: Room }) {
     <form
       onSubmit={onSubmit}
       noValidate
-      className="rounded-2xl bg-card p-5 shadow-[0_20px_50px_-30px_rgba(7,20,34,0.45)] ring-1 ring-foreground/10 lg:sticky lg:top-28"
+      className="rounded-2xl bg-card p-5 shadow-[0_20px_50px_-30px_rgba(7,20,34,0.45)] ring-1 ring-foreground/10 lg:sticky lg:top-[var(--site-header-height)]"
     >
       <div className="flex items-end justify-between gap-3">
         <div>
           <p className="text-4xl leading-none">
-            {formatMoney(room.nightlyRate)}
-            <span className="ml-2 font-sans text-sm text-muted-foreground">per night</span>
+            {formatMoney(room.nightlyRate, locale)}
+            <span className="ml-2 font-sans text-sm text-muted-foreground">{copy.perNight}</span>
           </p>
-          <p className="mt-2 text-xs text-muted-foreground">Taxes included</p>
+          <p className="mt-2 text-xs text-muted-foreground">{copy.taxes}</p>
         </div>
         <LeftBadge slug={room.slug} checkIn={hasDates ? checkIn : ""} checkOut={hasDates ? checkOut : ""} />
       </div>
@@ -80,7 +84,7 @@ export function ReservePanel({ room }: { room: Room }) {
       <div className="mt-4 min-h-[4.5rem]" aria-live="polite">
         {error ? (
           <div className="grid gap-2">
-            <Notice>{error}</Notice>
+            <Notice>{localizeMessage(error, locale)}</Notice>
             {suggestion ? (
               <button
                 type="button"
@@ -92,7 +96,7 @@ export function ReservePanel({ room }: { room: Room }) {
               >
                 <CalendarClock className="size-4 shrink-0" aria-hidden />
                 <span>
-                  Next free: {formatStayDate(suggestion.checkIn)} to {formatStayDate(suggestion.checkOut)}
+                  {copy.nextFree} {formatStayDate(suggestion.checkIn, locale)} {copy.to} {formatStayDate(suggestion.checkOut, locale)}
                 </span>
               </button>
             ) : null}
@@ -100,12 +104,12 @@ export function ReservePanel({ room }: { room: Room }) {
         ) : quote.ok && !blocked ? (
           <div className="flex items-baseline justify-between gap-3 text-sm">
             <span className="text-muted-foreground">
-              {formatMoney(quote.nightlyRate)} × {nightLabel(quote.nights)}
+              {formatMoney(quote.nightlyRate, locale)} × {nightLabel(quote.nights, locale)}
             </span>
-            <span className="text-2xl">{formatMoney(quote.total)}</span>
+            <span className="text-2xl">{formatMoney(quote.total, locale)}</span>
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">Choose dates to see the stay total and how many rooms are left.</p>
+          <p className="text-sm text-muted-foreground">{copy.choose}</p>
         )}
       </div>
       <button
@@ -113,9 +117,9 @@ export function ReservePanel({ room }: { room: Room }) {
         disabled={blocked}
         className={cn(buttonVariants(), "mt-3 h-12 w-full rounded-full text-base")}
       >
-        {hasDates ? "Continue to booking" : "Check dates and book"}
+        {hasDates ? copy.continue : copy.check}
       </button>
-      <p className="mt-3 text-center text-xs text-muted-foreground">Demo checkout. No real charge.</p>
+      <p className="mt-3 text-center text-xs text-muted-foreground">{copy.demo}</p>
     </form>
   )
 }

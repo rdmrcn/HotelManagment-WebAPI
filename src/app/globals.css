@@ -152,6 +152,16 @@
   }
 }
 
+:root {
+  --site-header-height: 6.75rem;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --site-header-height: 7.75rem;
+  }
+}
+
 @media print {
   @page {
     margin: 14mm;

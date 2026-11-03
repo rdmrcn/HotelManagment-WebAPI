@@ -3,8 +3,9 @@
 import { CreditCard, Lock } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { localizeMessage } from "@/lib/i18n/errors"
+import { useCopy, useLocale } from "@/lib/i18n/use-locale"
 import {
-  DEMO_NOTICE,
   cardBrand,
   formatCardNumber,
   formatExpiry,
@@ -37,24 +38,26 @@ export function PaymentFields({
   onFillDemo: () => void
 }) {
   const brand = cardBrand(card.number)
+  const locale = useLocale()
+  const copy = useCopy().payment
   return (
     <div className="grid gap-4">
       <p
         role="note"
         className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl bg-secondary px-3 py-2.5 text-sm leading-6 text-secondary-foreground"
       >
-        <span className="font-medium">{DEMO_NOTICE}</span>
+        <span className="font-medium">{copy.notice}</span>
         <button
           type="button"
           onClick={onFillDemo}
           disabled={disabled}
           className="rounded-full px-2.5 py-1 text-xs font-medium text-primary underline underline-offset-4 outline-none hover:bg-background/60 focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50"
         >
-          Fill the demo card
+          {copy.fill}
         </button>
       </p>
 
-      <Field field="name" label="Name on card" error={errors.name}>
+      <Field field="name" label={copy.name} error={errors.name ? localizeMessage(errors.name, locale) : undefined}>
         <Input
           id={cardFieldId("name")}
           name="cc-name"
@@ -68,7 +71,7 @@ export function PaymentFields({
         />
       </Field>
 
-      <Field field="number" label="Card number" error={errors.number}>
+      <Field field="number" label={copy.number} error={errors.number ? localizeMessage(errors.number, locale) : undefined}>
         <div className="relative">
           <Input
             id={cardFieldId("number")}
@@ -94,13 +97,13 @@ export function PaymentFields({
       </Field>
 
       <div className="grid grid-cols-2 gap-4">
-        <Field field="expiry" label="Expiry (MM/YY)" error={errors.expiry}>
+        <Field field="expiry" label={copy.expiry} error={errors.expiry ? localizeMessage(errors.expiry, locale) : undefined}>
           <Input
             id={cardFieldId("expiry")}
             name="cc-exp"
             inputMode="numeric"
             autoComplete="cc-exp"
-            placeholder="MM/YY"
+            placeholder={locale === "tr" ? "AA/YY" : "MM/YY"}
             value={card.expiry}
             disabled={disabled}
             aria-invalid={errors.expiry ? true : undefined}
@@ -109,7 +112,7 @@ export function PaymentFields({
             className="h-12 bg-background px-3 text-foreground tabular-nums"
           />
         </Field>
-        <Field field="cvc" label="CVC" error={errors.cvc}>
+        <Field field="cvc" label={copy.cvc} error={errors.cvc ? localizeMessage(errors.cvc, locale) : undefined}>
           <Input
             id={cardFieldId("cvc")}
             name="cc-csc"
@@ -129,7 +132,7 @@ export function PaymentFields({
 
       <p className="flex items-center gap-2 text-xs leading-5 text-muted-foreground">
         <Lock className="size-3.5 shrink-0" aria-hidden />
-        The card number and CVC stay in this form. Only the last four digits are saved with the booking.
+        {copy.kept}
       </p>
     </div>
   )

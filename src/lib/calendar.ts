@@ -1,4 +1,9 @@
+import type { Locale } from "@/lib/i18n/locale"
 import { addDays } from "@/lib/stay"
+
+function dateTag(locale: Locale) {
+  return locale === "tr" ? "tr-TR" : "en-GB"
+}
 
 export function firstOfMonth(iso: string) {
   return `${iso.slice(0, 7)}-01`
@@ -23,24 +28,24 @@ export function monthGrid(firstOfMonthIso: string): (string | null)[] {
   return cells
 }
 
-export function monthLabel(firstOfMonthIso: string) {
+export function monthLabel(firstOfMonthIso: string, locale: Locale = "en") {
   const [year, month] = firstOfMonthIso.split("-").map(Number)
-  return new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric" }).format(
+  return new Intl.DateTimeFormat(dateTag(locale), { month: "long", year: "numeric" }).format(
     new Date(year, (month ?? 1) - 1, 1),
   )
 }
 
-export function shortDate(iso: string) {
+export function shortDate(iso: string, locale: Locale = "en") {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return ""
   const [year, month, day] = iso.split("-").map(Number)
-  return new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short" }).format(
+  return new Intl.DateTimeFormat(dateTag(locale), { weekday: "short", day: "numeric", month: "short" }).format(
     new Date(year, (month ?? 1) - 1, day ?? 1),
   )
 }
 
-export function longDate(iso: string) {
+export function longDate(iso: string, locale: Locale = "en") {
   const [year, month, day] = iso.split("-").map(Number)
-  return new Intl.DateTimeFormat("en-GB", {
+  return new Intl.DateTimeFormat(dateTag(locale), {
     weekday: "long",
     day: "numeric",
     month: "long",

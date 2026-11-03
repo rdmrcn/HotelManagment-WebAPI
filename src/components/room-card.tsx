@@ -1,3 +1,5 @@
+"use client"
+
 import Image from "next/image"
 import Link from "next/link"
 import { BedDouble, Building2, Ruler, Users, Waves } from "lucide-react"
@@ -5,15 +7,17 @@ import { LeftBadge } from "@/components/left-badge"
 import { SideBadge } from "@/components/side-badge"
 import { buttonVariants } from "@/components/ui/button"
 import { formatMoney } from "@/lib/format"
+import { roomFace } from "@/lib/i18n/room-face"
+import { useCopy, useLocale } from "@/lib/i18n/use-locale"
 import type { Room } from "@/lib/rooms"
 import { bookPath } from "@/lib/search"
 import { cn } from "cn"
 
-function highlights(room: Room) {
+function highlights(room: Room, bed: string, view: string, sleeps: string) {
   return [
-    { Icon: BedDouble, text: room.bed },
-    { Icon: room.side === "bosphorus" ? Waves : Building2, text: room.view },
-    { Icon: Users, text: `Sleeps ${room.sleeps}` },
+    { Icon: BedDouble, text: bed },
+    { Icon: room.side === "bosphorus" ? Waves : Building2, text: view },
+    { Icon: Users, text: sleeps },
     { Icon: Ruler, text: room.size },
   ]
 }
@@ -31,8 +35,12 @@ export function RoomCard({
   checkOut?: string
   priority?: boolean
 }) {
+  const locale = useLocale()
+  const copy = useCopy()
+  const face = roomFace(room, locale)
   const Heading = heading
   const href = `/rooms/${room.slug}`
+  const facts = highlights(room, face.bed, face.view, locale === "tr" ? `${room.sleeps} kişi` : `Sleeps ${room.sleeps}`)
   return (
     <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/10 transition-shadow hover:shadow-[0_18px_40px_-24px_rgba(7,20,34,0.5)]">
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
@@ -58,13 +66,13 @@ export function RoomCard({
             </Link>
           </Heading>
           <div className="shrink-0 text-right">
-            <p className="text-xl leading-none font-medium">{formatMoney(room.nightlyRate)}</p>
-            <p className="mt-1 text-xs text-muted-foreground">per night</p>
+            <p className="text-xl leading-none font-medium">{formatMoney(room.nightlyRate, locale)}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{copy.card.perNight}</p>
           </div>
         </div>
-        <p className="mt-2 text-sm leading-6 text-foreground/80">{room.summary}</p>
+        <p className="mt-2 text-sm leading-6 text-foreground/80">{face.summary}</p>
         <ul className="mt-4 grid grid-cols-2 gap-x-3 gap-y-2 text-sm text-muted-foreground">
-          {highlights(room).map(({ Icon, text }) => (
+          {facts.map(({ Icon, text }) => (
             <li key={text} className="flex items-center gap-2">
               <Icon className="size-4 shrink-0 text-primary" aria-hidden />
               <span className="truncate">{text}</span>
@@ -77,7 +85,7 @@ export function RoomCard({
             href={bookPath(checkIn, checkOut, room.slug)}
             className={cn(buttonVariants(), "h-10 rounded-full px-5")}
           >
-            Book
+            {copy.card.book}
           </Link>
         </div>
       </div>

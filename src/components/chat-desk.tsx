@@ -8,10 +8,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
   answerGuest,
-  conciergePrompts,
+  conciergePromptsFor,
   conciergeWelcome,
   type ConciergeAction,
 } from "@/lib/concierge"
+import { useCopy, useLocale } from "@/lib/i18n/use-locale"
 import { cn } from "cn"
 
 type ChatMessage = {
@@ -21,7 +22,17 @@ type ChatMessage = {
   actions?: ConciergeAction[]
 }
 
-export function ChatDesk({
+export function ChatDesk(props: {
+  variant?: "page" | "panel"
+  active?: boolean
+  onClose?: () => void
+  onNavigate?: () => void
+}) {
+  const locale = useLocale()
+  return <ChatDeskBody key={locale} {...props} />
+}
+
+function ChatDeskBody({
   variant = "page",
   active = false,
   onClose,
@@ -37,7 +48,9 @@ export function ChatDesk({
   const inputRef = useRef<HTMLInputElement>(null)
   const scrollerRef = useRef<HTMLDivElement>(null)
   const nextId = useRef(0)
-  const welcome = conciergeWelcome()
+  const locale = useLocale()
+  const copy = useCopy().chat
+  const welcome = conciergeWelcome(locale)
   const [messages, setMessages] = useState<ChatMessage[]>([
     { id: "welcome", role: "concierge", text: welcome.text, actions: welcome.actions },
   ])
@@ -57,7 +70,7 @@ export function ChatDesk({
   function send(raw: string) {
     const question = raw.trim()
     if (!question) return
-    const answer = answerGuest(question)
+    const answer = answerGuest(question, locale)
     nextId.current += 1
     const guestId = `guest-${nextId.current}`
     nextId.current += 1
@@ -80,15 +93,15 @@ export function ChatDesk({
       <div className="flex items-start justify-between gap-3 border-b border-border px-4 py-3 md:px-5">
         <div>
           <h2 id={titleId} className={cn("leading-none", panel ? "text-2xl" : "text-3xl")}>
-            Concierge
+            {copy.title}
           </h2>
-          <p className="mt-1 text-xs leading-5 text-muted-foreground">Bosfor Hotels · English · this browser</p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">{locale === "tr" ? copy.turkish : copy.english}</p>
         </div>
         {onClose ? (
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close the concierge"
+            aria-label={copy.close}
             className="inline-flex size-11 shrink-0 items-center justify-center rounded-full text-foreground hover:bg-muted"
           >
             <X />
@@ -107,7 +120,7 @@ export function ChatDesk({
             </p>
           ) : (
             <div key={message.id} className="mr-auto max-w-[92%]">
-              <p className="text-[0.68rem] font-medium uppercase tracking-[0.16em] text-muted-foreground">Concierge</p>
+              <p className="text-[0.68rem] font-medium uppercase tracking-[0.16em] text-muted-foreground">{copy.who}</p>
               <div className="mt-1 rounded-2xl rounded-tl-md bg-background px-3.5 py-3 text-sm leading-6 text-foreground ring-1 ring-foreground/10">
                 <p className="whitespace-pre-line">{message.text}</p>
               </div>
@@ -140,7 +153,7 @@ export function ChatDesk({
             panel ? "overflow-x-auto" : "flex-wrap",
           )}
         >
-          {conciergePrompts.map((prompt) => (
+          {conciergePromptsFor(locale).map((prompt) => (
             <button
               key={prompt.question}
               type="button"
@@ -159,7 +172,7 @@ export function ChatDesk({
           }}
         >
           <Label htmlFor={inputId} className="sr-only">
-            Message the concierge
+            {copy.message}
           </Label>
           <Input
             ref={inputRef}
@@ -168,13 +181,13 @@ export function ChatDesk({
             value={draft}
             maxLength={400}
             autoComplete="off"
-            placeholder="Rooms, dates, breakfast, or a booking"
+            placeholder={copy.placeholder}
             className="h-11 flex-1 bg-background px-3 text-base text-foreground"
             onChange={(event) => setDraft(event.target.value)}
           />
           <Button type="submit" className="h-11 rounded-full px-4" disabled={!draft.trim()}>
             <Send />
-            Send
+            {copy.send}
           </Button>
         </form>
       </div>

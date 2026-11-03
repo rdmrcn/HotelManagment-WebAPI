@@ -38,7 +38,7 @@ function expectIntent(question: string, intent: string) {
   assert.ok(reply.actions.length > 0, `${question} has no action`)
   assert.ok(reply.text.length > 0)
   assert.equal(reply.text.includes("Hyatt"), false)
-  assert.equal(/[\w.+-]+@[\w.-]+\.\w+/.test(reply.text), false)
+  assert.equal(/[\w.+-]+@[\w.-]+\.\w+/.test(reply.text.replaceAll("stay@bosforhotels.example", "")), false)
   for (const action of reply.actions) {
     assert.match(action.href, /^\//)
     assert.equal(action.label.trim().length > 0, true)
@@ -145,9 +145,11 @@ expectIntent("Can I book the Suite Room?", "book-room")
 assert.equal(answerGuest("Can I book the Suite Room?").actions[0]?.href, "/book?room=suite")
 
 const outside = expectIntent("Do you have a pool, and what is your email?", "fallback")
-assert.match(outside.text, /no email address/i)
+assert.match(outside.text, /stay@bosforhotels\.example/)
+assert.match(outside.text, /fictional/i)
 assert.match(outside.text, /I can help with/)
 assert.equal(/free on|pool is/.test(outside.text), false)
+assert.ok(outside.actions.some((action) => action.href === "/contact"))
 
 const payment = expectIntent("Can I pay by card?", "fallback")
 assert.match(payment.text, /does not take real payment/i)

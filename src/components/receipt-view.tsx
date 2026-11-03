@@ -4,20 +4,19 @@ import { ArrowLeft, Printer } from "lucide-react"
 import Link from "next/link"
 import { BookingLookupFallback } from "@/components/booking-lookup-fallback"
 import { Button, buttonVariants } from "@/components/ui/button"
-import { formatMoney, formatStayDate, nightLabel } from "@/lib/format"
+import { formatIssued, formatMoney, formatStayDate, guestLabel, nightLabel } from "@/lib/format"
 import { house } from "@/lib/house"
-import { getRoom, sideInfo } from "@/lib/rooms"
+import { useCopy, useLocale } from "@/lib/i18n/use-locale"
+import { sideFace } from "@/lib/i18n/room-face"
+import { bedLabel } from "@/lib/i18n/room-face"
+import { getRoom } from "@/lib/rooms"
 import { useBookingRef } from "@/lib/use-booking-ref"
 import { cn } from "cn"
 
-function formatIssued(iso: string) {
-  const date = new Date(iso)
-  if (Number.isNaN(date.getTime())) return iso
-  return new Intl.DateTimeFormat("en-GB", { dateStyle: "long", timeStyle: "short" }).format(date)
-}
-
 export function ReceiptView() {
   const lookup = useBookingRef()
+  const locale = useLocale()
+  const copy = useCopy().receipt
   if (lookup.state !== "found") {
     return <BookingLookupFallback lookup={lookup} returnTo={`/receipt?ref=${lookup.state === "loading" ? "" : lookup.ref}`} />
   }
@@ -31,10 +30,10 @@ export function ReceiptView() {
     <div>
       <div className="mx-auto mb-6 flex max-w-3xl flex-wrap items-center justify-between gap-3 print:hidden">
         <Link href={confirmationHref} className={cn(buttonVariants({ variant: "ghost" }), "h-10 rounded-full px-3")}>
-          <ArrowLeft aria-hidden /> Back to confirmation
+          <ArrowLeft aria-hidden /> {copy.back}
         </Link>
         <Button type="button" className="h-11 rounded-full px-5" onClick={() => window.print()}>
-          <Printer aria-hidden /> Print or save as PDF
+          <Printer aria-hidden /> {copy.print}
         </Button>
       </div>
 
@@ -46,13 +45,13 @@ export function ReceiptView() {
           <div>
             <p className="font-serif text-3xl leading-none">{house.name}</p>
             <p className="mt-2 text-sm text-muted-foreground">
-              Hillside street above the waterfront
+              {copy.address}
               <br />
-              Bebek, Beşiktaş, Istanbul
+              {copy.area}
             </p>
           </div>
           <div className="text-right">
-            <p className="text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase">Reservation voucher</p>
+            <p className="text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase">{copy.voucher}</p>
             <h1 id="voucher-title" className="mt-1 text-4xl tracking-wide">
               {booking.confirmationCode}
             </h1>
@@ -62,93 +61,95 @@ export function ReceiptView() {
                 payment ? "border-foreground" : "border-border text-muted-foreground",
               )}
             >
-              {payment ? "Paid" : "Payment not recorded"}
+              {payment ? copy.paid : copy.notRecorded}
             </p>
           </div>
         </header>
 
-        <section className="grid gap-x-10 gap-y-6 border-b border-border py-6 sm:grid-cols-2" aria-label="Stay details">
-          <Block label="Guest">
+        <section className="grid gap-x-10 gap-y-6 border-b border-border py-6 sm:grid-cols-2" aria-label={copy.stay}>
+          <Block label={copy.guest}>
             <p className="font-medium">{guest.name}</p>
             <p className="text-sm text-muted-foreground">{guest.email}</p>
           </Block>
-          <Block label="Room">
-            <p className="font-medium">{room?.name ?? "Room"}</p>
+          <Block label={copy.room}>
+            <p className="font-medium">{room?.name ?? copy.roomFallback}</p>
             {room ? (
               <p className="text-sm text-muted-foreground">
-                {sideInfo[room.side].badge} · {room.bed} · {room.size}
+                {sideFace(room.side, locale).badge} · {bedLabel(room.bed, locale)} · {room.size}
               </p>
             ) : null}
           </Block>
-          <Block label="Check-in">
-            <p className="font-medium">{formatStayDate(booking.checkIn)}</p>
-            <p className="text-sm text-muted-foreground">From {house.checkIn}</p>
+          <Block label={copy.checkIn}>
+            <p className="font-medium">{formatStayDate(booking.checkIn, locale)}</p>
+            <p className="text-sm text-muted-foreground">
+              {copy.from} {house.checkIn}
+            </p>
           </Block>
-          <Block label="Check-out">
-            <p className="font-medium">{formatStayDate(booking.checkOut)}</p>
-            <p className="text-sm text-muted-foreground">By {house.checkOut}</p>
+          <Block label={copy.checkOut}>
+            <p className="font-medium">{formatStayDate(booking.checkOut, locale)}</p>
+            <p className="text-sm text-muted-foreground">
+              {copy.by} {house.checkOut}
+            </p>
           </Block>
-          <Block label="Guests">
-            <p className="font-medium">{booking.guests === 1 ? "1 guest" : `${booking.guests} guests`}</p>
+          <Block label={copy.guests}>
+            <p className="font-medium">{guestLabel(booking.guests, locale)}</p>
           </Block>
-          <Block label="Length of stay">
-            <p className="font-medium">{nightLabel(booking.nights)}</p>
+          <Block label={copy.length}>
+            <p className="font-medium">{nightLabel(booking.nights, locale)}</p>
           </Block>
         </section>
 
-        <section className="py-6" aria-label="Charges">
+        <section className="py-6" aria-label={copy.charges}>
           <table className="w-full text-sm">
-            <caption className="sr-only">Charges</caption>
+            <caption className="sr-only">{copy.charges}</caption>
             <tbody>
               <tr>
                 <th scope="row" className="py-2 text-left font-normal">
-                  {room?.name ?? "Room"}, {formatMoney(booking.nightlyRate)} × {nightLabel(booking.nights)}
+                  {room?.name ?? copy.roomFallback}, {formatMoney(booking.nightlyRate, locale)} × {nightLabel(booking.nights, locale)}
                 </th>
-                <td className="py-2 text-right">{formatMoney(booking.total)}</td>
+                <td className="py-2 text-right">{formatMoney(booking.total, locale)}</td>
               </tr>
               <tr>
                 <th scope="row" className="py-2 text-left font-normal text-muted-foreground">
-                  Taxes
+                  {copy.taxes}
                 </th>
-                <td className="py-2 text-right text-muted-foreground">Included</td>
+                <td className="py-2 text-right text-muted-foreground">{copy.included}</td>
               </tr>
               <tr className="border-t-2 border-foreground">
                 <th scope="row" className="pt-3 text-left text-base font-semibold">
-                  Total {payment ? "paid" : ""}
+                  {payment ? copy.totalPaid : copy.total}
                 </th>
-                <td className="pt-3 text-right font-serif text-3xl leading-none">{formatMoney(booking.total)}</td>
+                <td className="pt-3 text-right font-serif text-3xl leading-none">{formatMoney(booking.total, locale)}</td>
               </tr>
             </tbody>
           </table>
         </section>
 
-        <section className="grid gap-x-10 gap-y-4 border-t border-border py-6 sm:grid-cols-2" aria-label="Payment">
-          <Block label="Payment method">
+        <section className="grid gap-x-10 gap-y-4 border-t border-border py-6 sm:grid-cols-2" aria-label={copy.payment}>
+          <Block label={copy.method}>
             {payment ? (
               <p className="font-medium">
-                {payment.brand} ending {payment.last4}
+                {payment.brand} {copy.ending} {payment.last4}
               </p>
             ) : (
-              <p className="text-sm text-muted-foreground">Saved before demo checkout existed.</p>
+              <p className="text-sm text-muted-foreground">{copy.savedBefore}</p>
             )}
           </Block>
           {payment ? (
-            <Block label="Payment reference">
+            <Block label={copy.reference}>
               <p className="font-medium">{payment.reference}</p>
-              <p className="text-sm text-muted-foreground">Paid {formatIssued(payment.paidAt)}</p>
+              <p className="text-sm text-muted-foreground">
+                {copy.paidOn} {formatIssued(payment.paidAt, locale)}
+              </p>
             </Block>
           ) : null}
         </section>
 
         <footer className="border-t border-border pt-6 text-xs leading-5 text-muted-foreground">
           <p>
-            Show this voucher or the reference {booking.confirmationCode} at the front desk. Issued{" "}
-            {formatIssued(booking.createdAt)}.
+            {copy.show} {booking.confirmationCode} {copy.atDesk} {formatIssued(booking.createdAt, locale)}.
           </p>
-          <p className="mt-2 font-medium text-foreground">
-            Demo voucher. Bosfor Hotels is a fictional brand, no real charge was made and this is not a valid
-            reservation.
-          </p>
+          <p className="mt-2 font-medium text-foreground">{copy.demo}</p>
         </footer>
       </article>
     </div>

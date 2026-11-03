@@ -3,6 +3,7 @@
 import Image from "next/image"
 import { useState } from "react"
 import { Lightbox, type LightboxImage } from "@/components/lightbox"
+import { useCopy } from "@/lib/i18n/use-locale"
 import { cn } from "cn"
 
 /** Grid of photos that open in a lightbox. `layout` picks the shape of the grid. */
@@ -18,6 +19,7 @@ export function PhotoGallery({
   className?: string
 }) {
   const [index, setIndex] = useState<number | null>(null)
+  const photos = useCopy().photos
 
   return (
     <>
@@ -34,7 +36,7 @@ export function PhotoGallery({
             key={image.src}
             type="button"
             onClick={() => setIndex(i)}
-            aria-label={`Open photo: ${image.alt}`}
+            aria-label={`${photos.open} ${image.alt}`}
             className={cn(
               "group relative overflow-hidden bg-muted outline-none focus-visible:ring-3 focus-visible:ring-ring/60",
               layout === "mosaic" &&

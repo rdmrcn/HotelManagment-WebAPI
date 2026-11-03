@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { ChatDesk } from "@/components/chat-desk"
 import { Button } from "@/components/ui/button"
+import { useCopy } from "@/lib/i18n/use-locale"
 import { cn } from "cn"
 
 function onAskPage(pathname: string) {
@@ -13,6 +14,7 @@ function onAskPage(pathname: string) {
 
 export function ChatLauncher() {
   const pathname = usePathname()
+  const copy = useCopy().chat
   const [open, setOpen] = useState(false)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const wasOpen = useRef(false)
@@ -32,7 +34,10 @@ export function ChatLauncher() {
   }, [open])
 
   if (onAskPage(pathname)) return null
-  const onBook = pathname.replace(/\/+$/, "") === "/book"
+  const clean = pathname.replace(/\/+$/, "") || "/"
+  const onBook = clean === "/book"
+  const bookBar = clean === "/" || /^\/rooms\/[^/]+$/.test(clean)
+  const lift = onBook ? "bottom-24 lg:bottom-5" : bookBar ? "bottom-24 md:bottom-5" : "bottom-5"
 
   return (
     <>
@@ -55,13 +60,13 @@ export function ChatLauncher() {
       <Button
         ref={triggerRef}
         type="button"
-        className={cn("fixed right-4 z-[60] h-14 print:hidden rounded-full px-5 shadow-lg", onBook ? "bottom-24 lg:bottom-5" : "bottom-5")}
+        className={cn("fixed right-4 z-[60] h-14 print:hidden rounded-full px-5 shadow-lg", lift)}
         aria-expanded={open}
         aria-haspopup="dialog"
         onClick={() => setOpen((current) => !current)}
       >
         <MessageCircle />
-        {open ? "Close" : "Ask"}
+        {open ? copy.closeButton : copy.ask}
       </Button>
     </>
   )

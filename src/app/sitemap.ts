@@ -5,7 +5,7 @@ import { rooms } from "@/lib/rooms"
 export const dynamic = "force-static"
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const pages = ["", "/rooms", "/book", "/ask", ...rooms.map((room) => `/rooms/${room.slug}`)]
+  const pages = ["", "/rooms", "/book", "/ask", "/contact", ...rooms.map((room) => `/rooms/${room.slug}`)]
   return pages.map((path) => ({
     url: `${SITE_URL}${path}/`,
     changeFrequency: path === "" ? "weekly" : "monthly",

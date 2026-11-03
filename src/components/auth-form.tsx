@@ -9,8 +9,10 @@ import { Notice } from "@/components/notice"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { localizeMessage } from "@/lib/i18n/errors"
+import { useCopy, useLocale } from "@/lib/i18n/use-locale"
 import { authPath, safeNext } from "@/lib/search"
-import { MIN_PASSWORD_LENGTH, normalizeRegistration, normalizeSignIn, type FieldErrors } from "@/lib/validation"
+import { normalizeRegistration, normalizeSignIn, type FieldErrors } from "@/lib/validation"
 import { cn } from "cn"
 
 export function AuthForm({ mode }: { mode: "register" | "sign-in" }) {
@@ -27,6 +29,9 @@ export function AuthForm({ mode }: { mode: "register" | "sign-in" }) {
   const [submitting, setSubmitting] = useState(false)
 
   const isRegister = mode === "register"
+  const locale = useLocale()
+  const copy = useCopy().auth
+  const showError = (message?: string) => (message ? localizeMessage(message, locale) : undefined)
 
   async function submitAccount() {
     if (submitting) return
@@ -57,7 +62,7 @@ export function AuthForm({ mode }: { mode: "register" | "sign-in" }) {
     return (
       <div className="mx-auto w-full max-w-md" role="status" aria-live="polite">
         <div className="h-[28rem] animate-pulse rounded-3xl bg-muted" />
-        <span className="sr-only">Checking this browser for a saved account…</span>
+        <span className="sr-only">{copy.checking}</span>
       </div>
     )
   }
@@ -65,17 +70,19 @@ export function AuthForm({ mode }: { mode: "register" | "sign-in" }) {
   if (guest) {
     return (
       <div className="mx-auto w-full max-w-md rounded-3xl bg-card p-6 ring-1 ring-foreground/10 md:p-8">
-        <p className="text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase">Signed in</p>
-        <h1 className="mt-3 text-4xl">Welcome back, {guest.name}</h1>
+        <p className="text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase">{copy.signedIn}</p>
+        <h1 className="mt-3 text-4xl">
+          {copy.welcome} {guest.name}
+        </h1>
         <p className="mt-3 text-sm leading-6 text-muted-foreground">
-          {guest.email} is the guest on this browser. Continue, or sign out to use a different email.
+          {guest.email} {copy.continueBody}
         </p>
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <Link href={nextPath} className={cn(buttonVariants(), "h-11 rounded-full px-5")}>
-            Continue
+            {copy.continue}
           </Link>
           <Button type="button" variant="outline" className="h-11 rounded-full px-5" onClick={signOut}>
-            Sign out
+            {copy.signOut}
           </Button>
         </div>
       </div>
@@ -85,26 +92,21 @@ export function AuthForm({ mode }: { mode: "register" | "sign-in" }) {
   return (
     <div className="mx-auto w-full max-w-md rounded-3xl bg-card p-6 ring-1 ring-foreground/10 md:p-8">
       <p className="text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase">
-        {isRegister ? "Register" : "Sign in"}
+        {isRegister ? copy.registerEyebrow : copy.signInEyebrow}
       </p>
-      <h1 className="mt-3 text-4xl">{isRegister ? "Create your guest account" : "Sign in to your stay"}</h1>
-      <p className="mt-3 text-sm leading-6 text-muted-foreground">
-        {isRegister
-          ? "An email and a password is all it takes. Your details stay in this browser and are never sent anywhere."
-          : "Use any email and password. A new email creates the account for you; a known email needs the same password."}
-      </p>
+      <h1 className="mt-3 text-4xl">{isRegister ? copy.registerTitle : copy.signInTitle}</h1>
+      <p className="mt-3 text-sm leading-6 text-muted-foreground">{isRegister ? copy.registerLede : copy.signInLede}</p>
 
       <p className="mt-5 flex gap-2 rounded-xl bg-secondary px-3 py-2.5 text-sm leading-5 text-secondary-foreground">
         <ShieldAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
         <span>
-          <strong className="font-medium">Demo site.</strong> Do not use a real password. Anything you enter
-          is stored (hashed) only in this browser.
+          <strong className="font-medium">{copy.demo}</strong> {copy.demoBody}
         </span>
       </p>
 
       {storageError ? (
         <div className="mt-5">
-          <Notice>{storageError}</Notice>
+          <Notice>{localizeMessage(storageError, locale)}</Notice>
         </div>
       ) : null}
 
@@ -119,10 +121,10 @@ export function AuthForm({ mode }: { mode: "register" | "sign-in" }) {
         {isRegister ? (
           <Field
             id="name"
-            label="Name (optional)"
+            label={copy.name}
             autoComplete="name"
             value={name}
-            error={errors.name}
+            error={showError(errors.name)}
             onChange={(value) => {
               setName(value)
               setErrors((current) => ({ ...current, name: undefined }))
@@ -131,13 +133,13 @@ export function AuthForm({ mode }: { mode: "register" | "sign-in" }) {
         ) : null}
         <Field
           id="email"
-          label="Email"
+          label={copy.email}
           type="email"
           inputMode="email"
           autoComplete="email"
           placeholder="you@example.com"
           value={email}
-          error={errors.email}
+          error={showError(errors.email)}
           onChange={(value) => {
             setEmail(value)
             setErrors((current) => ({ ...current, email: undefined }))
@@ -145,12 +147,12 @@ export function AuthForm({ mode }: { mode: "register" | "sign-in" }) {
         />
         <Field
           id="password"
-          label="Password"
+          label={copy.password}
           type={showPassword ? "text" : "password"}
           autoComplete={isRegister ? "new-password" : "current-password"}
           value={password}
-          error={errors.password}
-          hint={`At least ${MIN_PASSWORD_LENGTH} characters. Any password works on this demo.`}
+          error={showError(errors.password)}
+          hint={copy.hint}
           onChange={(value) => {
             setPassword(value)
             setErrors((current) => ({ ...current, password: undefined }))
@@ -159,7 +161,7 @@ export function AuthForm({ mode }: { mode: "register" | "sign-in" }) {
             <button
               type="button"
               onClick={() => setShowPassword((current) => !current)}
-              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-label={showPassword ? copy.hide : copy.show}
               aria-pressed={showPassword}
               className="absolute top-1/2 right-2 grid size-9 -translate-y-1/2 place-items-center rounded-full text-muted-foreground outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50"
             >
@@ -167,22 +169,22 @@ export function AuthForm({ mode }: { mode: "register" | "sign-in" }) {
             </button>
           }
         />
-        {formError ? <Notice>{formError}</Notice> : null}
+        {formError ? <Notice>{localizeMessage(formError, locale)}</Notice> : null}
         <button
           type="submit"
           className={cn(buttonVariants(), "mt-1 h-12 rounded-full text-base")}
           disabled={submitting || Boolean(storageError)}
         >
-          {submitting ? "One moment…" : isRegister ? "Create account" : "Sign in"}
+          {submitting ? copy.moment : isRegister ? copy.create : copy.signIn}
         </button>
       </form>
       <p className="mt-6 text-sm text-muted-foreground">
-        {isRegister ? "Already have an account here? " : "Prefer to add your name? "}
+        {isRegister ? `${copy.haveAccount} ` : `${copy.addName} `}
         <Link
           href={authPath(isRegister ? "/sign-in" : "/register", nextPath)}
           className="font-medium text-primary underline-offset-4 hover:underline"
         >
-          {isRegister ? "Sign in" : "Create an account"}
+          {isRegister ? copy.signIn : copy.create}
         </Link>
       </p>
     </div>

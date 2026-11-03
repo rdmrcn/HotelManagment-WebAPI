@@ -2,9 +2,11 @@ import type { Metadata, Viewport } from "next"
 import { Cormorant_Garamond, Source_Sans_3 } from "next/font/google"
 import { AuthProvider } from "@/components/auth-provider"
 import { ChatLauncher } from "@/components/chat-launcher"
+import { LocaleEffects } from "@/components/locale-effects"
 import { SiteFooter } from "@/components/site-footer"
-import { SiteHeader } from "@/components/site-header"
+import { SiteHeader, SkipLink } from "@/components/site-header"
 import { SITE_URL, AUTHOR } from "@/lib/house"
+import { hotelJsonLd } from "@/lib/structured-data"
 import "./globals.css"
 
 const sourceSans = Source_Sans_3({
@@ -40,13 +42,20 @@ export const metadata: Metadata = {
     description,
     url: `${SITE_URL}/`,
     locale: "en_GB",
-    images: [{ url: `${SITE_URL}/og.jpg`, width: 1200, height: 630, alt: "Bosfor Hotels, a hillside house above the Bosphorus in Bebek, Istanbul." }],
+    images: [
+      {
+        url: `${SITE_URL}/images/hero-bosphorus.jpg`,
+        width: 1600,
+        height: 900,
+        alt: "Terraced stone house on the hillside with sun loungers and olive trees, the Bosphorus, a bridge and a ferry below.",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Bosfor Hotels · A hillside house above the Bosphorus",
     description,
-    images: [`${SITE_URL}/og.jpg`],
+    images: [`${SITE_URL}/images/hero-bosphorus.jpg`],
   },
 }
 
@@ -60,13 +69,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${sourceSans.variable} ${cormorant.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-background text-foreground">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(hotelJsonLd).replace(/</g, "\\u003c") }} />
         <AuthProvider>
-          <a
-            href="#content"
-            className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:rounded-full focus:bg-background focus:px-4 focus:py-2"
-          >
-            Skip to content
-          </a>
+          <LocaleEffects />
+          <SkipLink />
           <SiteHeader />
           <main id="content" className="flex-1">
             {children}
